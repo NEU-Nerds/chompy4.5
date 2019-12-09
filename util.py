@@ -35,7 +35,7 @@ def expandDown(roots, m, n, dM, dN):
 
 			#get the parents of node
 			start = root[0]
-			parents = getParents(start, m-start, node)
+			parents = getParents(start, dM, node)
 			# print(f"parent: {parents}")
 
 			#create the parent nodes, remove their root from rootsBySigma, add to newRoots
@@ -110,21 +110,14 @@ def getParents (pM, dM, evenNode):
 			stop = max(evenNode[d-1] + 1, start)
 		if layerEq[d]:
 			toAdd = set()
-<<<<<<< HEAD
-			# print(f"lastAdded: {lastAdded}")
-=======
->>>>>>> 7c5c8bbe940340ef56dc765063946697d9b55f90
 			for parent in lastAdded:
 				for i in range(parent[d], parent[d-1] + 1):
 					p = list(parent[:])
 					p[d] = i
-					lastAdded.add(tuple(p))
+					toAdd.add(tuple(p))
+			lastAdded.update(toAdd)
 		else:
 			parents.update(lastAdded)
-<<<<<<< HEAD
-			# print(f"lastAdded: {lastAdded}")
-=======
->>>>>>> 7c5c8bbe940340ef56dc765063946697d9b55f90
 			lastAdded = set()
 		for i in range(start, stop):
 			p = list(evenNode[:])
@@ -132,11 +125,7 @@ def getParents (pM, dM, evenNode):
 			lastAdded.add(tuple(p))
 		parents.update(lastAdded)
 
-<<<<<<< HEAD
-	# print(f"pN: {pN}\ndN: {dN}")
-=======
 	print(f"pM: {pM}\ndM: {dM}")
->>>>>>> 7c5c8bbe940340ef56dc765063946697d9b55f90
 	print(f"parents of {evenNode}: {parents}")
 	return parents
 
