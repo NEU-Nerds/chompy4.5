@@ -40,35 +40,9 @@ def expandDown(roots, m, n, dM, dN):
 				pRoot = parent[:-1]
 				rootsBySigma[sum(parent)].discard(pRoot)
 				newRoots.add(parent)
-				
+
 	return evens, newRoots
 
-
-
-			# print(f"root: {root}")
-			# print(f"root leaves: {root.leaves}")
-			#gen leaf of root at right sigma
-			#add leaf to evens
-			#get parents
-			#gen parents
-			# for parent in parents:
-			# 	rootsBySigma[parent.sigma].remove(parent.rootNode)
-
-			#OR
-			# print("Adding leaf expandDown")
-			# print("leaf1: " + str(leaf))
-			# print(f"leaf: {leaf}")
-			evenChild = False
-			for even in evens[-1]:
-				if isChild(even, leaf):
-					evenChild = True
-					break
-			# print("leaf2: " + str(leaf))
-			if evenChild:
-				leaf.setOdd()
-			else:
-				leaf.setEven()
-				evens[-1].add(leaf)
 
 
 # evens at depth, new nodes at depth, previous width, change in width
