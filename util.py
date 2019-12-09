@@ -92,6 +92,8 @@ def getParents (pM, dM, evenNode):
 
 	lastAdded = set()
 
+	print(f"even: {evenNode}")
+
 	for d in range(len(evenNode)):
 		start = max(pM + 1, evenNode[0] + 1)
 		stop = pM + dM + 1
@@ -100,21 +102,28 @@ def getParents (pM, dM, evenNode):
 			stop = max(evenNode[d-1] + 1, start)
 		if layerEq[d]:
 			toAdd = set()
+			print(f"lastAdded: {lastAdded}")
 			for parent in lastAdded:
+				print(f"parent: {parent}")
 				for i in range(parent[d], parent[d-1] + 1):
 					p = list(parent[:])
 					p[d] = i
-					toAdd.extend(tuple(p))
-			lastAdded.update(toAdd)
+					p = tuple(p)
+					# print(f"{p} length: {len(p)}")
+					lastAdded.add(p)
+			# lastAdded.update(toAdd)
 		else:
 			parents.update(lastAdded)
+			print(f"lastAdded: {lastAdded}")
 			lastAdded = set()
 		for i in range(start, stop):
 			p = list(evenNode[:])
 			p[d] = i
 			# parents[-1][d] = i
-			lastAdded.update(tuple(p))
-	parents.update(lastAdded)
+			p = tuple(p)
+			# print(f"{p} length: {len(p)}")
+			lastAdded.add(p)
+		parents.update(lastAdded)
 	# for d in range(1, len(evenNode.path)):
 
 	# print(f"pN: {pN}\ndN: {dN}")
