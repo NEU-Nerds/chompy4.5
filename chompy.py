@@ -23,16 +23,25 @@ def main():
 	#load roots
 	m, n = util.load(DATA_FOLDER / "mXn.dat")
 	roots = util.load(DATA_FOLDER / "roots.dat")
+	print("loaded")
+	print(f"m: {m}")
+	print(f"n: {n}")
+
 	#load m,n
 
 	while m < MAX_M or n < MAX_N:
 		dM = min(DELTA_M, MAX_M - m)
 		dN = min(DELTA_N, MAX_N - n)
-
+		print(f"m: {m}")
+		print(f"n: {n}")
+		print(f"dM: {dM}")
+		print(f"dN: {dN}")
 		sT = time.time()
 
 		#expand sideways by dM
+		print(f"roots: {roots}")
 		roots.update(util.expandSide(EVENS_FOLDER, m, n, dM, dN))
+		print(f"roots: {roots}")
 		#expand down by dN
 		evens, roots = util.expandDown(roots, m, n, dM, dN)
 
