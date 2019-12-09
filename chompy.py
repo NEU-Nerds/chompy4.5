@@ -40,12 +40,12 @@ def main(MAX_N, DELTA_N):
 		m += dM
 		n += dN
 
-		print(str(m)+"X"+str(n)+" #new evens: " + str(len(evens)) + "\t in " + str(endT-sT)+"s")
+		print(f"{m}X{n} #new evens: {len(evens)}\t in {str(endT-sT)}s")
 		# print(str(n)+"X"+str(n)+" evens: " + str(evens))
 
 		#store this depth's evens evens
 		util.store((m,n), DATA_FOLDER / "mXn.dat")
-		util.store(evens, EVENS_FOLDER / "evens"+str(n)+".dat")
+		util.store(evens, EVENS_FOLDER / f"evens{n}.dat")
 		util.store(roots, DATA_FOLDER / "roots.dat")
 
 	# util.store(((m,n), evens), DATA_FOLDER / "mn&evens.dat")
