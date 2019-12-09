@@ -111,7 +111,8 @@ def getParents (pM, dM, evenNode):
 			lastAdded.add(tuple(p))
 		parents.update(lastAdded)
 
-	print(f"parents of {evenNode.node}: {parents}")
+	print(f"pM: {pM}\ndM: {dM}")
+	print(f"parents of {evenNode}: {parents}")
 	return parents
 
 def layerEquivalence(path):
