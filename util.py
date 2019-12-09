@@ -72,7 +72,7 @@ def expandDown(tree, evens, m, n):
 
 
 # evens at depth, new nodes at depth, previous width, change in width
-def sideExpansion (evens, uncheckedNodes, pN, dN):
+def expandSide (evens, uncheckedNodes, pN, dN):
 	# print("\n\nIn parents")
 	# print(f"evens: {evens}")
 	evenParents = set()
