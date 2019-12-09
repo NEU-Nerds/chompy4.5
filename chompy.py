@@ -12,8 +12,8 @@ THIS_FOLDER = Path(THIS_FOLDER)
 DATA_FOLDER = Path(THIS_FOLDER, "./data/epoc1/")
 EVENS_FOLDER = Path(DATA_FOLDER, "./evens")
 
-MAX_M = 3
-MAX_N = 3
+MAX_M = 4
+MAX_N = 4
 
 DELTA_N = 1
 DELTA_M = 1
@@ -24,24 +24,24 @@ def main():
 	m, n = util.load(DATA_FOLDER / "mXn.dat")
 	roots = util.load(DATA_FOLDER / "roots.dat")
 	print("loaded")
-	print(f"m: {m}")
-	print(f"n: {n}")
+	# print(f"m: {m}")
+	# print(f"n: {n}")
 
 	#load m,n
 
 	while m < MAX_M or n < MAX_N:
 		dM = min(DELTA_M, MAX_M - m)
 		dN = min(DELTA_N, MAX_N - n)
-		print(f"m: {m}")
-		print(f"n: {n}")
-		print(f"dM: {dM}")
-		print(f"dN: {dN}")
+		# print(f"m: {m}")
+		# print(f"n: {n}")
+		# print(f"dM: {dM}")
+		# print(f"dN: {dN}")
 		sT = time.time()
 
 		#expand sideways by dM
-		print(f"roots: {roots}")
+		# print(f"roots: {roots}")
 		roots.update(util.expandSide(EVENS_FOLDER, m, n, dM, dN))
-		print(f"roots: {roots}")
+		# print(f"roots: {roots}")
 		#expand down by dN
 		evens, roots = util.expandDown(roots, m, n, dM, dN)
 
@@ -50,8 +50,17 @@ def main():
 		m += dM
 		n += dN
 
-		print(f"{m}X{n} #new evens: {len(evens)}\t in {str(endT-sT)}s")
-		print(str(n)+"X"+str(n)+" evens: " + str(evens))
+		# sumEvens = len(evens)
+		allEvens = set()
+
+		for x in range(1,n):
+			eX = util.load(EVENS_FOLDER / f"evens{x}.dat")
+			allEvens.update(eX)
+		allEvens.update(evens)
+
+		print(f"{m}X{n} #total evens: {len(allEvens)}\t in {str(endT-sT)}s")
+		print(str(n)+"X"+str(n)+" evens: " + str(allEvens))
+
 
 		#store this depth's evens evens
 		util.store((m,n), DATA_FOLDER / "mXn.dat")

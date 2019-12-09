@@ -43,7 +43,7 @@ def expandDown(roots, m, n, dM, dN):
 				pRoot = parent[:-1]
 				rootsBySigma[sum(parent)].discard(pRoot)
 				newRoots.add(parent)
-	print("finished expandDown\n")
+	# print("finished expandDown\n")
 	return evens, newRoots
 
 
@@ -51,24 +51,24 @@ def expandDown(roots, m, n, dM, dN):
 def expandSide (evensFolder, m, n, dM, dN):
 	# print(f"\nPARENTS OF EVENS:\t\t{evenParents}")
 	# evenParents = set(evenParents)
-	print("\nExpanding Side")
+	# print("\nExpanding Side")
 
 	roots = set()
 	for x in range(m+1, m+dM + 1):
 		roots.add((x,))
-	print(f"roots: {roots}\n")
+	# print(f"roots: {roots}\n")
 	for d in range(2, n + 1):
-		print(f"d: {d}")
+		# print(f"d: {d}")
 		roots = expandSideLayer(evensFolder, roots, d, m, dM)
-		print(f"roots: {roots}")
+		# print(f"roots: {roots}")
 
-	print("finished expandSide")
+	# print("finished expandSide")
 	return roots
 
 def expandSideLayer(evensFolder, roots, depth, pM, dM):
-	print("ExpandingSideLayer")
+	# print("ExpandingSideLayer")
 	evens = load(evensFolder / f"evens{depth}.dat")
-	print(f"evens: {evens}")
+	# print(f"evens: {evens}")
 
 	unknownNodes = []
 	for root in roots:
@@ -82,17 +82,17 @@ def expandSideLayer(evensFolder, roots, depth, pM, dM):
 		evenParents.update(getParents(pM, dM, even))
 	newRoots = set()
 	for unknown in unknownNodes:
-		print(f"\nunkown: {unknown}")
-		print(f"parents of evens: {evenParents}")
+		# print(f"\nunkown: {unknown}")
+		# print(f"parents of evens: {evenParents}")
 		if unknown in evenParents:
-			print(f"adding {unknown} to newRoots")
+			# print(f"adding {unknown} to newRoots")
 			newRoots.add(unknown)
 		else:
 			evens.add(unknown)
 			evenParents.update(getParents(pM, dM, unknown))
 
 	store(evens, evensFolder / f"evens{depth}.dat")
-	print("finished side layer\n")
+	# print("finished side layer\n")
 	return newRoots
 
 # returns the parents of a node at depth (don't add the tails)
@@ -125,8 +125,8 @@ def getParents (pM, dM, evenNode):
 			lastAdded.add(tuple(p))
 		parents.update(lastAdded)
 
-	print(f"pM: {pM}\ndM: {dM}")
-	print(f"parents of {evenNode}: {parents}")
+	# print(f"pM: {pM}\ndM: {dM}")
+	# print(f"parents of {evenNode}: {parents}")
 	return parents
 
 def layerEquivalence(path):
