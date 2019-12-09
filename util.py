@@ -99,13 +99,8 @@ def expandSideLayer(evensFolder, roots, depth, pM, dM):
 # pass in previous width, change in width, and the node
 def getParents (pM, dM, evenNode):
 	parents = set()
-
-	# maybe use layerEquivalence to do this?
 	layerEq = layerEquivalence(evenNode)
-
 	lastAdded = set()
-
-	print(f"even: {evenNode}")
 
 	for d in range(len(evenNode)):
 		start = max(pM + 1, evenNode[0] + 1)
@@ -115,31 +110,33 @@ def getParents (pM, dM, evenNode):
 			stop = max(evenNode[d-1] + 1, start)
 		if layerEq[d]:
 			toAdd = set()
+<<<<<<< HEAD
 			# print(f"lastAdded: {lastAdded}")
+=======
+>>>>>>> 7c5c8bbe940340ef56dc765063946697d9b55f90
 			for parent in lastAdded:
-				print(f"parent: {parent}")
 				for i in range(parent[d], parent[d-1] + 1):
 					p = list(parent[:])
 					p[d] = i
-					p = tuple(p)
-					# print(f"{p} length: {len(p)}")
-					lastAdded.add(p)
-			# lastAdded.update(toAdd)
+					lastAdded.add(tuple(p))
 		else:
 			parents.update(lastAdded)
+<<<<<<< HEAD
 			# print(f"lastAdded: {lastAdded}")
+=======
+>>>>>>> 7c5c8bbe940340ef56dc765063946697d9b55f90
 			lastAdded = set()
 		for i in range(start, stop):
 			p = list(evenNode[:])
 			p[d] = i
-			# parents[-1][d] = i
-			p = tuple(p)
-			# print(f"{p} length: {len(p)}")
-			lastAdded.add(p)
+			lastAdded.add(tuple(p))
 		parents.update(lastAdded)
-	# for d in range(1, len(evenNode.path)):
 
+<<<<<<< HEAD
 	# print(f"pN: {pN}\ndN: {dN}")
+=======
+	print(f"pM: {pM}\ndM: {dM}")
+>>>>>>> 7c5c8bbe940340ef56dc765063946697d9b55f90
 	print(f"parents of {evenNode}: {parents}")
 	return parents
 
