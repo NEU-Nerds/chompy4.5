@@ -53,7 +53,7 @@ def expandSide (evensFolder, m, n, dM, dN):
 	for x in range(m+1, m+dM + 1):
 		roots.add((x,))
 
-	for d in range(1, n + 1):
+	for d in range(2, n + 1):
 		roots = expandSideLayer(evensFolder, roots, d, m, dM)
 
 	return roots
@@ -119,7 +119,7 @@ def getParents (pM, dM, evenNode):
 
 	# print(f"pN: {pN}\ndN: {dN}")
 	# print(f"parents of {evenNode.node}: {parents}")
-	return tuple(parents)
+	return parents
 
 def layerEquivalence(path):
 		layerEq = [False] * len(path)
