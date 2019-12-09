@@ -12,8 +12,8 @@ THIS_FOLDER = Path(THIS_FOLDER)
 DATA_FOLDER = Path(THIS_FOLDER, "./data/epoc1/")
 EVENS_FOLDER = Path(DATA_FOLDER, "./evens")
 
-MAX_M = 5
-MAX_N = 5
+MAX_M = 10
+MAX_N = 10
 
 DELTA_N = 1
 DELTA_M = 1
@@ -59,7 +59,7 @@ def main():
 		allEvens.update(evens)
 
 		print(f"{m}X{n} #total evens: {len(allEvens)}\t in {str(endT-sT)}s")
-		print(str(n)+"X"+str(n)+" evens: " + str(allEvens))
+		# print(str(n)+"X"+str(n)+" evens: " + str(allEvens))
 
 
 		#store this depth's evens evens

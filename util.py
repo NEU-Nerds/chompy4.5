@@ -35,14 +35,20 @@ def expandDown(roots, m, n, dM, dN):
 
 			#get the parents of node
 			start = root[0]
-			parents = getParents(start, dM, node)
+			parents = getParents(start, (m+dM)-start, node)
+			# print(f"dM: {dM}")
 			# print(f"parent: {parents}")
 
 			#create the parent nodes, remove their root from rootsBySigma, add to newRoots
 			for parent in parents:
 				pRoot = parent[:-1]
-				rootsBySigma[sum(parent)].discard(pRoot)
-				newRoots.add(parent)
+				try:
+					rootsBySigma[sum(parent)].remove(pRoot)
+					newRoots.add(parent)
+				except:
+					pass
+
+	# print(f"newRoots: {newRoots}")
 	# print("finished expandDown\n")
 	return evens, newRoots
 
