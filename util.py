@@ -72,32 +72,34 @@ def expandDown(roots, m, n, dM, dN):
 
 
 # evens at depth, new nodes at depth, previous width, change in width
-def expandSide (evens, uncheckedNodes, pN, dN):
-	# print("\n\nIn parents")
-	# print(f"evens: {evens}")
+def expandSide (evensFolder, pM, dM, pN, dN):
+
+	evens = load(evensFolder / f"evens{pN}.dat")
+
+
 	evenParents = set()
 	for even in evens:
-		evenParents.extend(getParents(pN, dN, even))
+		evenParents.extend(getParents(pM, dM, even))
 	# print(f"\nPARENTS OF EVENS:\t\t{evenParents}")
 	# evenParents = set(evenParents)
 
-	endNodes = []
+	roots = set()
 	for unknown in uncheckedNodes:
 		# print(f"parents of evens: {evenParents}")
 		if path in evenParents:
 			unknown.setOdd()
-			endNodes.append(unknown)
+			roots.update(unknown)
 		else:
 			unknown.setEven()
 			evens.add(unknown)
-			evenParents.update(getParents(pN, dN, unknown))
+			evenParents.update(getParents(pM, dM, unknown))
 
 	# print("DONE WITH PARENTS\n\n")
-	return endNodes
+	return roots
 
 # returns the parents of a node at depth (don't add the tails)
 # pass in previous width, change in width, and the node
-def getParents (pN, dN, evenNode):
+def getParents (pM, dM, evenNode):
 	parents = set()
 
 	# maybe use layerEquivalence to do this?
@@ -106,10 +108,10 @@ def getParents (pN, dN, evenNode):
 	lastAdded = set()
 
 	for d in range(len(path)):
-		start = max(pN + 1, path[0] + 1)
-		stop = pN + dN + 1
+		start = max(pM + 1, path[0] + 1)
+		stop = pM + dM + 1
 		if d != 0:
-			start = min(path[d] + 1, pN + 1)
+			start = min(path[d] + 1, pM + 1)
 			stop = max(path[d-1] + 1, start)
 		if layerEq[d]:
 			toAdd = set()
