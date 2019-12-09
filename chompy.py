@@ -34,7 +34,7 @@ def main():
 		#expand sideways by dM
 		roots.update(util.expandSide(EVENS_FOLDER, m, n, dM, dN))
 		#expand down by dN
-		evens, roots = expandDown(roots, m, n, dM, dN)
+		evens, roots = util.expandDown(roots, m, n, dM, dN)
 
 		endT = time.time()
 
@@ -52,7 +52,7 @@ def main():
 
 def seed():
 	roots = set()
-	evens = set([(1)])
+	evens = set([(1,)])
 
 	try:
 		os.mkdir(Path(THIS_FOLDER, "./data"))

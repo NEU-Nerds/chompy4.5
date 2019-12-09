@@ -5,7 +5,7 @@ def expandDown(roots, m, n, dM, dN):
 	newRoots = set()
 
 	rootsBySigma = []
-	for i in range(m*n + 1):
+	for i in range((m+dM)*(n+dN) + 1):
 		rootsBySigma.append(set())
 	#fill rootsBySigma
 	# print("roots: " + str(roots))
@@ -13,7 +13,7 @@ def expandDown(roots, m, n, dM, dN):
 		# print(f"root: {root}")
 		for t in range(1, root[-1] + 1):
 			# print("t: " +str(t))
-			rootsBySigma[root.node.sigma + t].add(root)
+			rootsBySigma[sum(root) + t].add(root)
 
 	# print(f"rootsBySigma: {rootsBySigma}")
 	# print("\n\n")
@@ -28,7 +28,7 @@ def expandDown(roots, m, n, dM, dN):
 			#go to the next root
 
 			#create the node, add it to evens
-			node = tuple(list(root).append(sigma - sum(root)))
+			node = tuple(list(root) + [sigma - sum(root)] )
 			evens.add(node)
 
 			#get the parents of node
@@ -45,28 +45,40 @@ def expandDown(roots, m, n, dM, dN):
 
 
 # evens at depth, new nodes at depth, previous width, change in width
-def expandSide (evensFolder, pM, dM, pN, dN):
+def expandSide (evensFolder, m, n, dM, dN):
+	# print(f"\nPARENTS OF EVENS:\t\t{evenParents}")
+	# evenParents = set(evenParents)
 
-	evens = load(evensFolder / f"evens{pN}.dat")
+	roots = set()
+	for x in range(m+1, m+dM + 1):
+		roots.add((x,))
+
+	for d in range(1, n + 1):
+		roots = expandSideLayer(evensFolder, roots, d, m, dM)
+
+	return roots
+
+def expandSideLayer(evensFolder, roots, depth, pM, dM):
+	evens = load(evensFolder / f"evens{depth}.dat")
+	unknownNodes = set()
+	for root in roots:
+		for x in range(root[-1]):
+			unknownNodes.add(tuple(list(root) + [x]))
 
 
 	evenParents = set()
 	for even in evens:
 		evenParents.update(getParents(pM, dM, even))
-	# print(f"\nPARENTS OF EVENS:\t\t{evenParents}")
-	# evenParents = set(evenParents)
 
-	roots = set()
-	for unknown in uncheckedNodes:
+	for unknown in unknownNodes:
 		# print(f"parents of evens: {evenParents}")
-		if path in evenParents:
-			unknown.setOdd()
-			roots.update(unknown)
+		if unknown in evenParents:
+			roots.add(unknown)
 		else:
-			unknown.setEven()
 			evens.add(unknown)
 			evenParents.update(getParents(pM, dM, unknown))
 
+	store(evens, evensFolder / f"evens{depth}.dat")
 	# print("DONE WITH PARENTS\n\n")
 	return roots
 
@@ -76,16 +88,16 @@ def getParents (pM, dM, evenNode):
 	parents = set()
 
 	# maybe use layerEquivalence to do this?
-	layerEq = evenNode.layerEquivalence()
+	layerEq = layerEquivalence(evenNode)
 
 	lastAdded = set()
 
-	for d in range(len(path)):
-		start = max(pM + 1, path[0] + 1)
+	for d in range(len(evenNode)):
+		start = max(pM + 1, evenNode[0] + 1)
 		stop = pM + dM + 1
 		if d != 0:
-			start = min(path[d] + 1, pM + 1)
-			stop = max(path[d-1] + 1, start)
+			start = min(evenNode[d] + 1, pM + 1)
+			stop = max(evenNode[d-1] + 1, start)
 		if layerEq[d]:
 			toAdd = set()
 			for parent in lastAdded:
@@ -96,9 +108,9 @@ def getParents (pM, dM, evenNode):
 			lastAdded.update(toAdd)
 		else:
 			parents.update(lastAdded)
-			lastAdded = []
+			lastAdded = set()
 		for i in range(start, stop):
-			p = list(path[:])
+			p = list(evenNode[:])
 			p[d] = i
 			# parents[-1][d] = i
 			lastAdded.update(tuple(p))
