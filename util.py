@@ -1,11 +1,17 @@
 import pickle
 
-def expandDown(roots, m, n, dM, dN):
+def expandDown(evensFolder, roots, m, n, dM, dN):
+	for d in range(n+1, n+dN + 1):
+		evens, roots = expandDownLayer(roots, m+dM, d)
+		store(evens, evensFolder / f"evens{d}.dat")
+	return roots
+
+def expandDownLayer(roots, m, n):
 	evens = set()
 	newRoots = set()
 
 	rootsBySigma = []
-	for i in range((m+dM)*(n+dN) + 1):
+	for i in range((m)*(n) + 1):
 		rootsBySigma.append(set())
 	#fill rootsBySigma
 	# print("roots: " + str(roots))
@@ -35,7 +41,7 @@ def expandDown(roots, m, n, dM, dN):
 
 			#get the parents of node
 			start = root[0]
-			parents = getParents(start, (m+dM)-start, node)
+			parents = getParents(start, (m)-start, node)
 			# print(f"dM: {dM}")
 			# print(f"parent: {parents}")
 
@@ -52,12 +58,15 @@ def expandDown(roots, m, n, dM, dN):
 	# print("finished expandDown\n")
 	return evens, newRoots
 
-
 # evens at depth, new nodes at depth, previous width, change in width
 def expandSide (evensFolder, m, n, dM, dN):
 	# print(f"\nPARENTS OF EVENS:\t\t{evenParents}")
 	# evenParents = set(evenParents)
 	# print("\nExpanding Side")
+	# print(f"m: {m}")
+	# print(f"n: {n}")
+	# print(f"dM: {dM}")
+	# print(f"dN: {dN}")
 
 	roots = set()
 	for x in range(m+1, m+dM + 1):
