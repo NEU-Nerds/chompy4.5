@@ -12,7 +12,8 @@ THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 # THIS_FOLDER = "/Users/tymarking/Documents/chomp/chompy4"
 # print(THIS_FOLDER)
 THIS_FOLDER = Path(THIS_FOLDER)
-DATA_FOLDER = Path(THIS_FOLDER, "./data/epoc2/")
+DATA_FOLDER = Path(THIS_FOLDER, "./data/epoc1/")
+EVENS_FOLDER = Path(DATA_FOLDER, "./evens")
 
 MAX_M = 12
 MAX_N = 12
@@ -23,6 +24,8 @@ DELTA_M = 1
 def main(MAX_N, DELTA_N):
 
 	#load roots
+	m, n = util.load(DATA_FOLDER / "mXn.dat")
+	roots = util.load(DATA_FOLDER / "roots.dat")
 	#load m,n
 
 	while m < MAX_M or n < MAX_N:
@@ -37,16 +40,20 @@ def main(MAX_N, DELTA_N):
 		m += dM
 		n += dN
 
-
 		print(str(m)+"X"+str(n)+" #new evens: " + str(len(evens)) + "\t in " + str(endT-sT)+"s")
 		# print(str(n)+"X"+str(n)+" evens: " + str(evens))
+
 		#store this depth's evens evens
+		util.store((m,n), DATA_FOLDER / "mXn.dat")
+		util.store(evens, EVENS_FOLDER / "evens"+str(n)+".dat")
+		util.store(roots, DATA_FOLDER / "roots.dat")
 
 	# util.store(((m,n), evens), DATA_FOLDER / "mn&evens.dat")
 
 def expandDown(roots, m, dM, n, dN):
 
 	pass
+
 	###PREV EXPAND###
 	#side expand
 	# up to prev n
@@ -76,18 +83,26 @@ def expandDown(roots, m, dM, n, dN):
 	# return evens, tree
 
 def seed():
-	roots = [()]
-	evens = [()]
+	roots = set()
+	evens = set([(1)])
 
-	# tree = chompTree.Tree(1)
-	# util.fillTree([tree.getNode((1,))], tree, 1)
-	# tree.getNode((1,)).setEven()
+	try:
+		os.mkdir(Path(THIS_FOLDER, "./data")
+	except:
+		pass
+	try:
+		os.mkdir(DATA_FOLDER)
+	except:
+		pass
+	try:
+		os.mkdir(EVENS_FOLDER)
+	except:
+		pass
 
-	# n_evens = (1, [ [], set([tree.getNode((1,))]) ] )
+	util.store((1,1), DATA_FOLDER / "mXn.dat")
+	util.store(roots, DATA_FOLDER / "roots.dat")
+	util.store(evens, EVENS_FOLDER / "evens1.dat")
 
-	# util.store(n_evens, DATA_FOLDER / "mn&evens.dat")
-	# util.store(tree, DATA_FOLDER / "tree.dat")
-	# return evens
 
 
 if __name__ == '__main__':
