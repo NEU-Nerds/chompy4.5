@@ -42,7 +42,7 @@ def main():
 		n += dN
 
 		print(f"{m}X{n} #new evens: {len(evens)}\t in {str(endT-sT)}s")
-		# print(str(n)+"X"+str(n)+" evens: " + str(evens))
+		print(str(n)+"X"+str(n)+" evens: " + str(evens))
 
 		#store this depth's evens evens
 		util.store((m,n), DATA_FOLDER / "mXn.dat")
