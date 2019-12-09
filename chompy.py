@@ -12,8 +12,8 @@ THIS_FOLDER = Path(THIS_FOLDER)
 DATA_FOLDER = Path(THIS_FOLDER, "./data/epoc1/")
 EVENS_FOLDER = Path(DATA_FOLDER, "./evens")
 
-MAX_M = 4
-MAX_N = 4
+MAX_M = 5
+MAX_N = 5
 
 DELTA_N = 1
 DELTA_M = 1
