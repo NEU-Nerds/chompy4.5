@@ -1,11 +1,8 @@
 import util
-from sortedcontainers import SortedSet
 import os
 from pathlib import Path
 import time
-import chompTree
-import treeParents
-import depthParents
+
 
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 #THIS_FOLDER = "D:/Mass Storage/Math/chompy"
@@ -21,7 +18,7 @@ MAX_N = 12
 DELTA_N = 100
 DELTA_M = 1
 
-def main(MAX_N, DELTA_N):
+def main():
 
 	#load roots
 	m, n = util.load(DATA_FOLDER / "mXn.dat")
@@ -33,10 +30,14 @@ def main(MAX_N, DELTA_N):
 		dN = min(DELTA_N, MAX_N - n)
 
 		sT = time.time()
+
 		#expand sideways by dM
+		roots.update(util.expandSide(EVENS_FOLDER, m, n, dM, dN))
 		#expand down by dN
-		evens, roots = expandDown(roots)
+		evens, roots = expandDown(roots, m, n, dM, dN)
+
 		endT = time.time()
+
 		m += dM
 		n += dN
 
@@ -48,39 +49,6 @@ def main(MAX_N, DELTA_N):
 		util.store(evens, EVENS_FOLDER / f"evens{n}.dat")
 		util.store(roots, DATA_FOLDER / "roots.dat")
 
-	# util.store(((m,n), evens), DATA_FOLDER / "mn&evens.dat")
-
-def expandDown(roots, m, dM, n, dN):
-
-	pass
-
-	###PREV EXPAND###
-	#side expand
-	# up to prev n
-	# workingNodes = []
-	# for x in range(dM):
-	# 	# print("Adding leaf sideExpansion")
-	# 	leaf = tree.rootNode.addLeaf()
-	# 	leaf.setOdd()
-	# 	workingNodes.append(leaf)
-	#
-	#
-	# #expand sideways, modify evens
-	# for depth in range(2, n+1):
-	# 	leaves = []
-	# 	for node in workingNodes:
-	# 		leaves += node.expandNode()
-	# 	workingNodes = depthParents.sideExpansion(evens[depth], leaves, m, dM)
-	#
-	# for node in workingNodes:
-	# 	tree.maxDepthNodes.add(node)
-	#
-	# #bottom expand
-	# for depth in range(n+1, n+dN + 1):
-	# 	#expand down, modify evens
-	# 	util.expandDown(tree, evens, m+dM, depth)
-	# 	pass
-	# return evens, tree
 
 def seed():
 	roots = set()
@@ -107,4 +75,4 @@ def seed():
 
 if __name__ == '__main__':
 	seed()
-	main(MAX_N, DELTA_N)
+	main()

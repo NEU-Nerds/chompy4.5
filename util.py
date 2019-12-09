@@ -1,24 +1,20 @@
 
 
-def expandDown(tree, evens, m, n):
-	evens.append(set())
+def expandDown(roots, m, n, dM, dN):
+	evens = set()
+	newRoots = set()
+
 	rootsBySigma = []
 	for i in range(m*n + 1):
 		rootsBySigma.append(set())
 	#fill rootsBySigma
-	roots = tree.maxDepthNodes
 	# print("roots: " + str(roots))
 	for root in roots:
-		#if the root is even
-		if root.node.even:
-			continue
 		# print(f"root: {root}")
-		# print(f"root.depth: {root.node.nodeDepth}")
-		# print(f"root.path: {root.node.path}")
-		for t in range(1, (root.node.path[-1] * root.node.nodeDepth) + 1):
+		for t in range(1, root[-1] + 1):
 			# print("t: " +str(t))
 			rootsBySigma[root.node.sigma + t].add(root)
-			# print(f"root: {root}")
+
 	# print(f"rootsBySigma: {rootsBySigma}")
 	# print("\n\n")
 	for sigma in range(len(rootsBySigma)):
@@ -31,18 +27,22 @@ def expandDown(tree, evens, m, n):
 			#remove their branchNode from the corresponding rootsBySigma
 			#go to the next root
 
-			#create the node, mark it even
-			leaf = root.addLeaf()
-			leaf.setEven()
-			evens[-1].add(leaf)
+			#create the node, add it to evens
+			node = tuple(list(root).append(sigma - sum(root)))
+			evens.add(node)
 
-			#get the parents of leaf
-			start = leaf.node.path[0]
-			parents = depthParents.getParents(start, m-start, leaf)
+			#get the parents of node
+			start = root[0]
+			parents = getParents(start, m-start, root)
 
-			#create the parent nodes
+			#create the parent nodes, remove their root from rootsBySigma, add to newRoots
 			for parent in parents:
-				tree.pathNodes[str()]
+				pRoot = parent[:-1]
+				rootsBySigma[sum(parent)].discard(pRoot)
+				newRoots.add(parent)
+				
+	return evens, newRoots
+
 
 
 			# print(f"root: {root}")
