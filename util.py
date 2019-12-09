@@ -44,7 +44,6 @@ def expandDown(roots, m, n, dM, dN):
 	return evens, newRoots
 
 
-
 # evens at depth, new nodes at depth, previous width, change in width
 def expandSide (evensFolder, pM, dM, pN, dN):
 
@@ -110,6 +109,11 @@ def getParents (pM, dM, evenNode):
 	# print(f"parents of {evenNode.node}: {parents}")
 	return tuple(parents)
 
+def layerEquivalence(path):
+		layerEq = [False] * len(path)
+		for i in range(1, len(path)):
+			layerEq[i] = path[i] == path[i-1]
+		return layerEq
 
 def load(fileName):
 	with open (fileName, 'rb') as f:
