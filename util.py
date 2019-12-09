@@ -1,4 +1,4 @@
-
+import pickle
 
 def expandDown(roots, m, n, dM, dN):
 	evens = set()
@@ -53,7 +53,7 @@ def expandSide (evensFolder, pM, dM, pN, dN):
 
 	evenParents = set()
 	for even in evens:
-		evenParents.extend(getParents(pM, dM, even))
+		evenParents.update(getParents(pM, dM, even))
 	# print(f"\nPARENTS OF EVENS:\t\t{evenParents}")
 	# evenParents = set(evenParents)
 

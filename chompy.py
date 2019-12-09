@@ -12,10 +12,10 @@ THIS_FOLDER = Path(THIS_FOLDER)
 DATA_FOLDER = Path(THIS_FOLDER, "./data/epoc1/")
 EVENS_FOLDER = Path(DATA_FOLDER, "./evens")
 
-MAX_M = 12
-MAX_N = 12
+MAX_M = 3
+MAX_N = 3
 
-DELTA_N = 100
+DELTA_N = 1
 DELTA_M = 1
 
 def main():
@@ -55,7 +55,7 @@ def seed():
 	evens = set([(1)])
 
 	try:
-		os.mkdir(Path(THIS_FOLDER, "./data")
+		os.mkdir(Path(THIS_FOLDER, "./data"))
 	except:
 		pass
 	try:
