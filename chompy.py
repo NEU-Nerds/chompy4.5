@@ -10,13 +10,15 @@ THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 # print(THIS_FOLDER)
 THIS_FOLDER = Path(THIS_FOLDER)
 DATA_FOLDER = Path(THIS_FOLDER, "./data/epoc1/")
-EVENS_FOLDER = Path(DATA_FOLDER, "./evens")
+EVENS_FOLDER = Path(DATA_FOLDER, "./evens/")
+ROOTS_FOLDER = Path(DATA_FOLDER, "./rootBatches/")
+ROOTS_BY_SIGMA_FOLDER = Path(DATA_FOLDER, "./rootsBySigma/")
 
-MAX_M = 13
-MAX_N = 13
+MAX_M = 12
+MAX_N = 12
 
-DELTA_N = 100
-DELTA_M = 100
+DELTA_N = 4
+DELTA_M = 4
 
 def main():
 
@@ -28,7 +30,7 @@ def main():
 	# print(f"n: {n}")
 
 	#load m,n
-
+	firstST = time.time()
 	while m < MAX_M or n < MAX_N:
 		dM = min(DELTA_M, MAX_M - m)
 		dN = min(DELTA_N, MAX_N - n)
@@ -43,7 +45,7 @@ def main():
 		roots.update(util.expandSide(EVENS_FOLDER, m, n, dM, dN))
 		# print(f"roots: {roots}")
 		#expand down by dN
-		roots = util.expandDown(EVENS_FOLDER, roots, m, n, dM, dN)
+		roots = util.expandDown(EVENS_FOLDER, ROOTS_FOLDER, ROOTS_BY_SIGMA_FOLDER, roots, m, n, dM, dN)
 
 		endT = time.time()
 
@@ -66,7 +68,7 @@ def main():
 		util.store((m,n), DATA_FOLDER / "mXn.dat")
 		# util.store(evens, EVENS_FOLDER / f"evens{n}.dat")
 		util.store(roots, DATA_FOLDER / "roots.dat")
-
+	print(f"total time: {time.time() - firstST} ")
 
 def seed():
 	roots = set()

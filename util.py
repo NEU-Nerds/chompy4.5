@@ -1,12 +1,54 @@
 import pickle
+import os
 
-def expandDown(evensFolder, roots, m, n, dM, dN):
+def expandDown(evensFolder, rootsFolder, rootsBySigmaFolder, roots, m, n, dM, dN):
 	for d in range(n+1, n+dN + 1):
-		evens, roots = expandDownLayer(roots, m+dM, d)
+		evens = expandDownLayer(rootsFolder, rootsBySigmaFolder, m+dM, d)
 		store(evens, evensFolder / f"evens{d}.dat")
 	return roots
 
-def expandDownLayer(roots, m, n):
+def expandDownLayer(rootsFolder, rootsBySigmaFolder, m, n):
+
+	#WHAT IF IT SPLITS NODES DIRECTLY ALONG A SIGMA DIFFERENCE?
+
+	#load each root batch
+	#store to rootsBySigma batches
+	numRootBatches = len(os.listdir(rootsFolder))
+	for i in range(numRootBatches):
+
+		roots = load(rootsFolder / f"rootsBatch{i}.dat")
+
+		minSigma = sum(roots[0]) + 1
+		maxSigma = sum(roots[-1]) + m
+
+		#preShared = [minS,minS+m-1]
+		#postShared = [maxS-m+1,maxS]
+
+		#created rootsBySigma batch
+		rootsBySigma = []
+		for i in range(minSigma, maxSigma + 1):
+			rootsBySigma.append(set())
+
+		for root in roots:
+			# print(f"root: {root}")
+			for t in range(1, root[-1] + 1):
+				# print("t: " +str(t))
+				rootsBySigma[sum(root) + t - minSigma].add(root)
+
+		rBSPre = rootsBySigma[ : m - minSigma]
+		rBS = rootsBySigma[m : maxS - minSigma - m + 1]
+		rBSPost = rootsBySigma[maxS - minSigma - m + 1 : ]
+		del rootsBySigma
+
+		store(rBS, rootsBySigmaFolder / f"rootsBS{i}.dat")
+		try:
+			existingRBSPre = load(rootsBySigmaFolder / f"rootsBS{i-1}-{i}.dat")
+			finalRBSPre = []
+			for i in range(len())
+		except:
+			finalRBSPre = rBSPre
+
+
 	evens = set()
 	newRoots = set()
 
