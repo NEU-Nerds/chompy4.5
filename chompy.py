@@ -9,22 +9,23 @@ THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 # THIS_FOLDER = "/Users/tymarking/Documents/chomp/chompy4"
 # print(THIS_FOLDER)
 THIS_FOLDER = Path(THIS_FOLDER)
-DATA_FOLDER = Path(THIS_FOLDER, "./data/epoc1/")
+DATA_FOLDER = Path(THIS_FOLDER, "./data/epoc2/")
 EVENS_FOLDER = Path(DATA_FOLDER, "./evens/")
 ROOTS_FOLDER = Path(DATA_FOLDER, "./rootBatches/")
 ROOTS_BY_SIGMA_FOLDER = Path(DATA_FOLDER, "./rootsBySigma/")
 
-MAX_M = 12
-MAX_N = 12
+MAX_M = 11
+MAX_N = 11
 
-DELTA_N = 4
-DELTA_M = 4
+DELTA_N = 1
+DELTA_M = 1
 
 def main():
 
 	#load roots
 	m, n = util.load(DATA_FOLDER / "mXn.dat")
-	roots = util.load(DATA_FOLDER / "roots.dat")
+	# roots = util.load(DATA_FOLDER / "roots.dat")
+	util.emptyDir(DATA_FOLDER / "roots")
 	print("loaded")
 	# print(f"m: {m}")
 	# print(f"n: {n}")
@@ -42,10 +43,16 @@ def main():
 
 		#expand sideways by dM
 		# print(f"roots: {roots}")
-		roots.update(util.expandSide(EVENS_FOLDER, m, n, dM, dN))
+		roots = util.expandSide(EVENS_FOLDER, m, n, dM, dN)
+		# prevRoots = util.load(DATA_FOLDER / "roots/rootsBatch0.dat")
+		util.emptyDir(DATA_FOLDER / "parents")
+		util.emptyDir(DATA_FOLDER / "oldRoots")
+
+		numRootBatches = len(os.listdir(DATA_FOLDER / "roots"))
+		util.store(roots, DATA_FOLDER / f"roots/rootsBatch{numRootBatches}.dat")
 		# print(f"roots: {roots}")
 		#expand down by dN
-		roots = util.expandDown(EVENS_FOLDER, ROOTS_FOLDER, ROOTS_BY_SIGMA_FOLDER, roots, m, n, dM, dN)
+		roots = util.expandDown(DATA_FOLDER, m, n, dM, dN)
 
 		endT = time.time()
 
@@ -67,10 +74,12 @@ def main():
 		#store this depth's evens evens
 		util.store((m,n), DATA_FOLDER / "mXn.dat")
 		# util.store(evens, EVENS_FOLDER / f"evens{n}.dat")
-		util.store(roots, DATA_FOLDER / "roots.dat")
+		# util.store(roots, DATA_FOLDER / "roots.dat")
 	print(f"total time: {time.time() - firstST} ")
 
 def seed():
+	util.emptyDir(DATA_FOLDER)
+
 	roots = set()
 	evens = set([(1,)])
 
@@ -86,12 +95,23 @@ def seed():
 		os.mkdir(EVENS_FOLDER)
 	except:
 		pass
+	try:
+		os.mkdir(DATA_FOLDER / "roots")
+	except:
+		pass
+	try:
+		os.mkdir(DATA_FOLDER / "oldRoots")
+	except:
+		pass
+	try:
+		os.mkdir(DATA_FOLDER / "parents")
+	except:
+		pass
+
 
 	util.store((1,1), DATA_FOLDER / "mXn.dat")
-	util.store(roots, DATA_FOLDER / "roots.dat")
+	util.store(roots, DATA_FOLDER / "roots/rootsBatch0.dat")
 	util.store(evens, EVENS_FOLDER / "evens1.dat")
-
-
 
 if __name__ == '__main__':
 	seed()
