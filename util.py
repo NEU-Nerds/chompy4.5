@@ -69,15 +69,17 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 						try:
 							rootsBySigma[sum(parent)].remove(pRoot)
 							newRoots.add(parent)
-
-							if len(newRoots) >= MAX_ROOTS:
-								# print("STORING NEW ROOTS")
-								store(newRoots, DATA_FOLDER / f"roots/rootsBatch{rootBatches}.dat")
-								rootBatches += 1
-								newRoots.clear()
-
 						except:
 							pass
+
+						if len(newRoots) >= MAX_ROOTS:
+							# print("STORING NEW ROOTS")
+							store(newRoots, DATA_FOLDER / f"roots/rootsBatch{rootsBatches}.dat")
+							rootsBatches += 1
+							newRoots.clear()
+							# print(f"newRoots post clear: {newRoots}")
+
+
 				except:
 					prevParents = None
 
@@ -108,15 +110,16 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 								rootsBySigma[sum(parent)].remove(pRoot)
 								newRoots.add(parent)
 								# print("added parent to newRoots")
-
-								if len(newRoots) >= MAX_ROOTS:
-									# print("STORING NEW ROOTS")
-									store(newRoots, DATA_FOLDER / f"roots/rootsBatch{rootBatches}.dat")
-									rootBatches += 1
-									newRoots.clear()
-
 							except:
 								pass
+							if len(newRoots) >= MAX_ROOTS:
+								# print("STORING NEW ROOTS")
+								store(newRoots, DATA_FOLDER / f"roots/rootsBatch{rootsBatches}.dat")
+								rootsBatches += 1
+								newRoots.clear()
+
+
+
 						#add to be stored list
 						storeParents.add(parent)
 						#ADD MAX PARENTS LATER
