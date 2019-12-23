@@ -1,11 +1,14 @@
 import pickle
 import os
 import shutil
+import time
 
-MAX_ROOTS = 10 ** 4
+MAX_ROOTS = 10 ** 6
 
 def expandDown(DATA_FOLDER, m, n, dM, dN):
 	for d in range(n+1, n+dN + 1):
+
+		# print(f"\nExpandingDown d = {d}")
 
 		emptyDir(DATA_FOLDER / "parents")
 		emptyDir(DATA_FOLDER / "oldRoots")
@@ -25,7 +28,7 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 		numRootBatches = len(os.listdir(DATA_FOLDER / "oldRoots"))
 		for i in range(numRootBatches):
 			roots = load(DATA_FOLDER / f"oldRoots/rootsBatch{i}.dat")
-			print(f"rootsBatch {i}")
+			# print(f"rootsBatch {i}")
 			#created rootsBySigma batch
 			rootsBySigma = {}
 			keys = set()
@@ -52,7 +55,7 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 
 
 			for sigma in range(minSigma, maxSigma + 1):
-				# print(f"Sigma: {sigma}")
+
 
 				storeParents = set()
 
@@ -60,6 +63,7 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 				if sigma not in keys:
 					# print("nothing here")
 					continue
+				# print(f"Sigma: {sigma}")
 				# print(f"preRootsBySigma: {rootsBySigma[sigma]}")
 				try:
 					prevParents = load(DATA_FOLDER / f"parents/parentsSigma{sigma}.dat")
@@ -100,11 +104,11 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 
 					#create the parent nodes, remove their root from rootsBySigma, add to newRoots
 					for parent in parents:
-						pSigma = sum(parent)
+
 						# print(f"Node parent: {parent}")
 						# print(f"rootsBySigma: {rootsBySigma}")
 						#if greater than maxSigma then don't bother
-						if pSigma <= maxSigma:
+						if sum(parent) <= maxSigma:
 							pRoot = parent[:-1]
 							try:
 								rootsBySigma[sum(parent)].remove(pRoot)
@@ -145,7 +149,7 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 		store(newRoots, DATA_FOLDER / f"roots/rootsBatch{rootsBatches}.dat")
 		rootsBatches += 1
 
-		print("rootsBatches: " + str(rootsBatches))
+		# print("rootsBatches: " + str(rootsBatches))
 
 		del newRoots
 
@@ -155,7 +159,7 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 
 
 # evens at depth, new nodes at depth, previous width, change in width
-def expandSide (evensFolder, m, n, dM, dN):
+def expandSide (DATA_FOLDER, m, n, dM, dN):
 	# print(f"\nPARENTS OF EVENS:\t\t{evenParents}")
 	# evenParents = set(evenParents)
 	# print("\nExpanding Side")
@@ -168,43 +172,182 @@ def expandSide (evensFolder, m, n, dM, dN):
 	for x in range(m+1, m+dM + 1):
 		roots.add((x,))
 	# print(f"roots: {roots}\n")
-	for d in range(2, n + 1):
+	store(roots, DATA_FOLDER / "sideRoots/rootsBatch0.dat")
+
+	for d in range(2, n + dN):
 		# print(f"d: {d}")
-		roots = expandSideLayer(evensFolder, roots, d, m, dM)
-		# print(f"roots: {roots}")
+		expandSideLayer(DATA_FOLDER, d, m, dM)
 
+	#take resulting side roots and add them to main roots
+	numRootBatches = len(os.listdir(DATA_FOLDER / "roots"))
+	for i in range(len(os.listdir(DATA_FOLDER / "sideRoots"))):
+		# print(f"renaming side{i} to side{i+numRootBatches}")
+		os.rename(DATA_FOLDER / f"sideRoots/rootsBatch{i}.dat", DATA_FOLDER / f"roots/rootsBatch{numRootBatches+i}.dat")
 	# print("finished expandSide")
-	return roots
 
-def expandSideLayer(evensFolder, roots, depth, pM, dM):
-	# print("ExpandingSideLayer")
-	evens = load(evensFolder / f"evens{depth}.dat")
+def expandSideLayer(DATA_FOLDER, depth, pM, dM):
+	# print("\nExpandingSideLayer d = " +str(depth))
+
+	emptyDir(DATA_FOLDER / "parents")
+	emptyDir(DATA_FOLDER / "sideOldRoots")
+
+	os.rename(DATA_FOLDER / "sideOldRoots", DATA_FOLDER / "sideRootsTEMP")
+	os.rename(DATA_FOLDER / "sideRoots", DATA_FOLDER / "sideOldRoots")
+	os.rename(DATA_FOLDER / "sideRootsTEMP", DATA_FOLDER / "sideRoots")
+
+	# evens = load(evensFolder / f"evens{depth}.dat")
+
+	evens = load(DATA_FOLDER / f"evens/evens{depth}.dat")
 	# print(f"evens: {evens}")
+	#max = MAX_ROOTS
+	newRoots = set()
+	rootsBatches = 0
 
-	unknownNodes = []
-	for root in roots:
-		for x in range(1,root[-1]+1):
-			unknownNodes.append(tuple(list(root) + [x]))
-	unknownNodes.sort(key=sum)
-
-
+	#might need to batch this if we get to batching evens
+	#will need to batch this into parents files
 	evenParents = set()
 	for even in evens:
 		evenParents.update(getParents(pM, dM, even))
-	newRoots = set()
-	for unknown in unknownNodes:
-		# print(f"\nunkown: {unknown}")
-		# print(f"parents of evens: {evenParents}")
-		if unknown in evenParents:
-			# print(f"adding {unknown} to newRoots")
-			newRoots.add(unknown)
-		else:
-			evens.add(unknown)
-			evenParents.update(getParents(pM, dM, unknown))
 
-	store(evens, evensFolder / f"evens{depth}.dat")
-	# print("finished side layer\n")
-	return newRoots
+
+	# print(f"init EvenParents: {evenParents}" )
+	#load each root batch
+	numRootBatches = len(os.listdir(DATA_FOLDER / "sideOldRoots"))
+	for i in range(numRootBatches):
+		roots = load(DATA_FOLDER / f"sideOldRoots/rootsBatch{i}.dat")
+
+		# unknownNodes = []
+		# for root in roots:
+		# 	for x in range(1,root[-1]+1):
+		# 		unknownNodes.append(tuple(list(root) + [x]))
+		# unknownNodes.sort(key=sum)
+
+		rootsBySigma = {}
+		keys = set()
+		for root in roots:
+			# print(f"root: {root}")
+			# print(f"preRootsBySigma: {rootsBySigma}")
+			for t in range(1, root[-1] + 1):
+				# print("t: " +str(t))
+				if (root + (t,)) in evenParents:
+					newRoots.add(root + (t,))
+					continue
+
+				key = sum(root) + t
+				# print(f"key: {key}")
+				if key in keys:
+					# print("key was already there")
+					rootsBySigma[key].add(root)
+				else:
+					# print("key wasn't there")
+					rootsBySigma[key] = set([root])
+					keys.add(key)
+		# print(f"rootsBySigma: {rootsBySigma}")
+
+		#get min and max sigma
+		minSigma = min(keys)
+		maxSigma = max(keys)
+
+		for sigma in range(minSigma, maxSigma + 1):
+
+			#if this sigma is empty
+			if sigma not in keys:
+				# print("nothing here")
+				continue
+			storeParents = set()
+			# print(f"Sigma: {sigma}")
+			# print(f"preRootsBySigma: {rootsBySigma[sigma]}")
+			try:
+				prevParents = load(DATA_FOLDER / f"parents/parentsSigma{sigma}.dat")
+				# print(f"prevParents exists: {prevParents}")
+				for parent in prevParents:
+					pRoot = parent[:-1]
+					try:
+						rootsBySigma[sum(parent)].remove(pRoot)
+						newRoots.add(parent)
+					except:
+						pass
+
+					if len(newRoots) >= MAX_ROOTS:
+						# print("STORING NEW ROOTS")
+						store(newRoots, DATA_FOLDER / f"sideRoots/rootsBatch{rootsBatches}.dat")
+						rootsBatches += 1
+						newRoots.clear()
+						# print(f"newRoots post clear: {newRoots}")
+
+
+			except:
+				prevParents = None
+
+			# print(f"postRootsBySigma: {rootsBySigma[sigma]}")
+
+			for root in rootsBySigma[sigma]:
+				#create the node, add it to evens
+				node = tuple(list(root) + [sigma - sum(root)] )
+				# print(f"node: {node}")
+
+				#add maxEvens?
+				evens.add(node)
+
+				#get the parents of node
+				start = root[0]
+				parents = getParents(start, (pM)-start, node)
+				# print(f"parents: {parents}")
+
+				#create the parent nodes, remove their root from rootsBySigma, add to newRoots
+				for parent in parents:
+
+					# print(f"Node parent: {parent}")
+					# print(f"rootsBySigma: {rootsBySigma}")
+					#if greater than maxSigma then don't bother
+					if sum(parent) <= maxSigma:
+						pRoot = parent[:-1]
+						try:
+							rootsBySigma[sum(parent)].remove(pRoot)
+							newRoots.add(parent)
+							# print("added parent to newRoots")
+						except:
+							pass
+						if len(newRoots) >= MAX_ROOTS:
+							# print("STORING NEW ROOTS")
+							store(newRoots, DATA_FOLDER / f"sideRoots/rootsBatch{rootsBatches}.dat")
+							rootsBatches += 1
+							newRoots.clear()
+
+
+
+					#add to be stored list
+					storeParents.add(parent)
+					#ADD MAX PARENTS LATER
+
+
+			# print(f"newRoots: {newRoots}")
+			if prevParents:
+				combParents = prevParents.union(storeParents)
+				del prevParents
+			else:
+				combParents = storeParents
+
+			del storeParents
+
+			store(combParents, DATA_FOLDER / f"parents/parentsSigma{sigma}.dat")
+
+			del combParents
+			del rootsBySigma[sigma]
+
+
+		del rootsBySigma
+
+	store(newRoots, DATA_FOLDER / f"sideRoots/rootsBatch{rootsBatches}.dat")
+	rootsBatches += 1
+
+	# print("rootsBatches: " + str(rootsBatches))
+
+	del newRoots
+	store(evens, DATA_FOLDER / f"evens/evens{depth}.dat")
+	del evens
+
+
 
 # returns the parents of a node at depth (don't add the tails)
 # pass in previous width, change in width, and the node

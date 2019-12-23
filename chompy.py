@@ -14,8 +14,8 @@ EVENS_FOLDER = Path(DATA_FOLDER, "./evens/")
 ROOTS_FOLDER = Path(DATA_FOLDER, "./rootBatches/")
 ROOTS_BY_SIGMA_FOLDER = Path(DATA_FOLDER, "./rootsBySigma/")
 
-MAX_M = 11
-MAX_N = 11
+MAX_M = 16
+MAX_N = 16
 
 DELTA_N = 1
 DELTA_M = 1
@@ -43,13 +43,13 @@ def main():
 
 		#expand sideways by dM
 		# print(f"roots: {roots}")
-		roots = util.expandSide(EVENS_FOLDER, m, n, dM, dN)
+		util.expandSide(DATA_FOLDER, m, n, dM, dN)
 		# prevRoots = util.load(DATA_FOLDER / "roots/rootsBatch0.dat")
 		util.emptyDir(DATA_FOLDER / "parents")
 		util.emptyDir(DATA_FOLDER / "oldRoots")
 
-		numRootBatches = len(os.listdir(DATA_FOLDER / "roots"))
-		util.store(roots, DATA_FOLDER / f"roots/rootsBatch{numRootBatches}.dat")
+		# numRootBatches = len(os.listdir(DATA_FOLDER / "roots"))
+		# util.store(roots, DATA_FOLDER / f"roots/rootsBatch{numRootBatches}.dat")
 		# print(f"roots: {roots}")
 		#expand down by dN
 		roots = util.expandDown(DATA_FOLDER, m, n, dM, dN)
@@ -59,15 +59,15 @@ def main():
 		m += dM
 		n += dN
 
-
 		allEvens = set()
 		for x in range(1,n+1):
 			eX = util.load(EVENS_FOLDER / f"evens{x}.dat")
 			allEvens.update(eX)
-		# allEvens.update(evens)
 
 		print(f"{m}X{n} #total evens: {len(allEvens)}\t in {str(endT-sT)}s")
-		# print(str(n)+"X"+str(n)+" evens: " + str(allEvens))
+
+
+		# print(str(m)+"X"+str(n)+" evens: " + str(allEvens))
 
 		# print(f"{m}X{n} in {str(endT-sT)}s")
 
@@ -78,7 +78,10 @@ def main():
 	print(f"total time: {time.time() - firstST} ")
 
 def seed():
-	util.emptyDir(DATA_FOLDER)
+	try:
+		util.emptyDir(DATA_FOLDER)
+	except:
+		pass
 
 	roots = set()
 	evens = set([(1,)])
@@ -105,6 +108,14 @@ def seed():
 		pass
 	try:
 		os.mkdir(DATA_FOLDER / "parents")
+	except:
+		pass
+	try:
+		os.mkdir(DATA_FOLDER / "sideOldRoots")
+	except:
+		pass
+	try:
+		os.mkdir(DATA_FOLDER / "sideRoots")
 	except:
 		pass
 
