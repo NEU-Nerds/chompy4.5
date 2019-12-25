@@ -14,8 +14,8 @@ EVENS_FOLDER = Path(DATA_FOLDER, "./evens/")
 ROOTS_FOLDER = Path(DATA_FOLDER, "./rootBatches/")
 ROOTS_BY_SIGMA_FOLDER = Path(DATA_FOLDER, "./rootsBySigma/")
 
-MAX_M = 14
-MAX_N = 14
+MAX_M = 7
+MAX_N = 7
 
 DELTA_N = 1
 DELTA_M = 1
@@ -25,9 +25,6 @@ def main():
 	m, n = util.load(DATA_FOLDER / "mXn.dat")
 	startM = m
 	startN = n
- 	#it breaks if you comment this out but we need these for picking up where we left of
-	#I'll figure this out after batching is stable for infinate time - Ty
-	# util.emptyDir(DATA_FOLDER / "roots")
 
 	firstST = time.time()
 	#m and n are prev m and n expanded to
@@ -116,5 +113,5 @@ def seed():
 	util.store(set([(1,)]), EVENS_FOLDER / "evens1.dat")
 
 if __name__ == '__main__':
-	seed()
+	# seed()
 	main()
