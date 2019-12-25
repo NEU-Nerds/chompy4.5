@@ -14,8 +14,8 @@ EVENS_FOLDER = Path(DATA_FOLDER, "./evens/")
 ROOTS_FOLDER = Path(DATA_FOLDER, "./rootBatches/")
 ROOTS_BY_SIGMA_FOLDER = Path(DATA_FOLDER, "./rootsBySigma/")
 
-MAX_M = 16
-MAX_N = 16
+MAX_M = 10
+MAX_N = 10
 
 DELTA_N = 1
 DELTA_M = 1
@@ -44,6 +44,8 @@ def main():
 		#expand sideways by dM
 		# print(f"roots: {roots}")
 		util.expandSide(DATA_FOLDER, m, n, dM, dN)
+		sideTime = time.time()
+		print("Side time: " + str(sideTime - sT) )
 		# prevRoots = util.load(DATA_FOLDER / "roots/rootsBatch0.dat")
 		util.emptyDir(DATA_FOLDER / "parents")
 		util.emptyDir(DATA_FOLDER / "oldRoots")
@@ -53,6 +55,7 @@ def main():
 		# print(f"roots: {roots}")
 		#expand down by dN
 		roots = util.expandDown(DATA_FOLDER, m, n, dM, dN)
+		print("Down time: " + str( time.time() - sideTime))
 
 		endT = time.time()
 

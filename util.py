@@ -7,8 +7,7 @@ MAX_ROOTS = 10 ** 6
 
 def expandDown(DATA_FOLDER, m, n, dM, dN):
 	for d in range(n+1, n+dN + 1):
-
-		# print(f"\nExpandingDown d = {d}")
+		print(f"\nExpandingDown d = {d}")
 
 		emptyDir(DATA_FOLDER / "parents")
 		emptyDir(DATA_FOLDER / "oldRoots")
@@ -28,7 +27,8 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 		numRootBatches = len(os.listdir(DATA_FOLDER / "oldRoots"))
 		for i in range(numRootBatches):
 			roots = load(DATA_FOLDER / f"oldRoots/rootsBatch{i}.dat")
-			# print(f"rootsBatch {i}")
+			print(f"rootsBatch {i} with {len(roots)} roots")
+			print("generating RBS")
 			#created rootsBySigma batch
 			rootsBySigma = {}
 			keys = set()
@@ -53,7 +53,7 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 			maxSigma = max(keys)
 
 
-
+			print("doing sigmas")
 			for sigma in range(minSigma, maxSigma + 1):
 
 
@@ -155,6 +155,7 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 
 		store(evens, DATA_FOLDER / f"evens/evens{d}.dat")
 		del evens
+	print("finished all down expand")
 
 
 
@@ -162,7 +163,7 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 def expandSide (DATA_FOLDER, m, n, dM, dN):
 	# print(f"\nPARENTS OF EVENS:\t\t{evenParents}")
 	# evenParents = set(evenParents)
-	# print("\nExpanding Side")
+	print("\nExpanding Side")
 	# print(f"m: {m}")
 	# print(f"n: {n}")
 	# print(f"dM: {dM}")
@@ -183,10 +184,10 @@ def expandSide (DATA_FOLDER, m, n, dM, dN):
 	for i in range(len(os.listdir(DATA_FOLDER / "sideRoots"))):
 		# print(f"renaming side{i} to side{i+numRootBatches}")
 		os.rename(DATA_FOLDER / f"sideRoots/rootsBatch{i}.dat", DATA_FOLDER / f"roots/rootsBatch{numRootBatches+i}.dat")
-	# print("finished expandSide")
+	print("finished expandSide")
 
 def expandSideLayer(DATA_FOLDER, depth, pM, dM):
-	# print("\nExpandingSideLayer d = " +str(depth))
+	print("ExpandingSideLayer d = " +str(depth))
 
 	emptyDir(DATA_FOLDER / "parents")
 	emptyDir(DATA_FOLDER / "sideOldRoots")
@@ -203,13 +204,73 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM):
 	newRoots = set()
 	rootsBatches = 0
 
-	#might need to batch this if we get to batching evens
-	#will need to batch this into parents files
-	evenParents = set()
-	for even in evens:
-		evenParents.update(getParents(pM, dM, even))
+	#get the parents of the existing evens and store them in parents directory
+	# (maybe we should keep this data around)
+	evensL = list(evens)
+	#sort evensL so that lowest sigma first, so we know groups of sigma's that we are done with
+	evensL.sort(key=sum)
+	# print(f"evensL: {evensL}")
+	parentsDict = {}
+	for even in evensL:
+		# print(f"even: {even}")
+		parents = getParents(pM, dM, even)
 
+		for parent in parents:
+			sigma = sum(parent)
+			if sigma in parentsDict.keys():
+				parentsDict[sigma].add(parent)
+			else:
+				parentsDict[sigma] = set([parent])
+		#all keys that are less than any possible parent yet to be generated
+		# print(f"parentsDict: {parentsDict}")
+		# print(f"min parentsDict.keys(): {min(parentsDict.keys())}")
+		for k in range(min(parentsDict.keys()), sum(even) + 1):
+			# print(f"INSDIE storing k of {k}")
 
+			if k not in parentsDict.keys():
+				continue
+			#merge with existing parents
+			try:
+				prevParents = load(DATA_FOLDER / f"parents/parentsSigma{k}.dat")
+			except:
+				prevParents = None
+
+			if prevParents:
+				combParents = prevParents.union(parentsDict[k])
+				del prevParents
+			else:
+				combParents = parentsDict[k]
+			# print(f"combParents: {combParents}")
+			store(combParents, DATA_FOLDER / f"parents/parentsSigma{k}.dat")
+
+			del prevParents
+			del combParents
+			del parentsDict[k]
+	for k in range(min(parentsDict.keys()), max(parentsDict.keys()) +1):
+		# print(f"storing k of {k}")
+
+		if k not in parentsDict.keys():
+			continue
+		#merge with existing parents
+		try:
+			prevParents = load(DATA_FOLDER / f"parents/parentsSigma{k}.dat")
+		except:
+			prevParents = None
+
+		if prevParents:
+			combParents = prevParents.union(parentsDict[k])
+			del prevParents
+		else:
+			combParents = parentsDict[k]
+		# print(f"combParents: {combParents}")
+		store(combParents, DATA_FOLDER / f"parents/parentsSigma{k}.dat")
+
+		del prevParents
+		del combParents
+		del parentsDict[k]
+	#put into parents dat files instead of memory
+
+	# print("finished init evenParents")
 	# print(f"init EvenParents: {evenParents}" )
 	#load each root batch
 	numRootBatches = len(os.listdir(DATA_FOLDER / "sideOldRoots"))
@@ -229,9 +290,9 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM):
 			# print(f"preRootsBySigma: {rootsBySigma}")
 			for t in range(1, root[-1] + 1):
 				# print("t: " +str(t))
-				if (root + (t,)) in evenParents:
-					newRoots.add(root + (t,))
-					continue
+				# if (root + (t,)) in evenParents:
+				# 	newRoots.add(root + (t,))
+				# 	continue
 
 				key = sum(root) + t
 				# print(f"key: {key}")
@@ -276,8 +337,9 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM):
 						# print(f"newRoots post clear: {newRoots}")
 
 
-			except:
+			except OSError as e:
 				prevParents = None
+				# print("prev parents error : " + str(e))
 
 			# print(f"postRootsBySigma: {rootsBySigma[sigma]}")
 
@@ -344,6 +406,7 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM):
 	# print("rootsBatches: " + str(rootsBatches))
 
 	del newRoots
+	# del evenParents
 	store(evens, DATA_FOLDER / f"evens/evens{depth}.dat")
 	del evens
 
