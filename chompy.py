@@ -2,20 +2,20 @@ import util
 import os
 from pathlib import Path
 import time
-
+import expand
 
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 #THIS_FOLDER = "D:/Mass Storage/Math/chompy"
 # THIS_FOLDER = "/Users/tymarking/Documents/chomp/chompy4"
 # print(THIS_FOLDER)
 THIS_FOLDER = Path(THIS_FOLDER)
-DATA_FOLDER = Path(THIS_FOLDER, "./data/epoc2/")
+DATA_FOLDER = Path(THIS_FOLDER, "./data/epoc3/")
 EVENS_FOLDER = Path(DATA_FOLDER, "./evens/")
 ROOTS_FOLDER = Path(DATA_FOLDER, "./rootBatches/")
 ROOTS_BY_SIGMA_FOLDER = Path(DATA_FOLDER, "./rootsBySigma/")
 
-MAX_M = 7
-MAX_N = 7
+MAX_M = 12
+MAX_N = 12
 
 DELTA_N = 1
 DELTA_M = 1
@@ -38,14 +38,14 @@ def main():
 		sT = time.time()
 
 		#expand sideways by dM
-		util.expandSide(DATA_FOLDER, m, n, dM, dN)
+		expand.expandSide(DATA_FOLDER, m, n, dM, dN)
 		sideTime = time.time()
 		print(f"Side time: {sideTime - sT}s")
 		util.emptyDir(DATA_FOLDER / "parents")
 		util.emptyDir(DATA_FOLDER / "oldRoots")
 
 		#expand down by dN
-		roots = util.expandDown(DATA_FOLDER, m, n, dM, dN)
+		expand.expandDown(DATA_FOLDER, m, n, dM, dN)
 		print(f"Down time: {time.time() - sideTime}s")
 
 		endT = time.time()
@@ -113,5 +113,5 @@ def seed():
 	util.store(set([(1,)]), EVENS_FOLDER / "evens1.dat")
 
 if __name__ == '__main__':
-	# seed()
+	seed()
 	main()
