@@ -2,10 +2,12 @@ import pickle
 import os
 import shutil
 import time
+import sys
+from objsize import get_deep_size
 
 #RBS is the roots of the new nodes indexed by the sigma of the node
 #Note a root = node[:-1] (I love how this looks like a face btw)
-def genRBS(roots):
+def genRBS(roots, log=False):
 	rootsBySigma = {}
 	for root in roots:
 		#t = addition to root's path to create the node
@@ -16,6 +18,9 @@ def genRBS(roots):
 			else:
 				rootsBySigma[key] = set([root])
 				# keys.add(key)
+	if log:
+		# print(f"Size of RBS: {sys.getsizeof(rootsBySigma)}")
+		print(f"Deep RBS objSize: {get_deep_size(rootsBySigma)}")
 	return rootsBySigma
 
 #get the parents of the existing evens and store them in parents directory
@@ -61,6 +66,7 @@ def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM):
 			del prevParents
 			del combParents
 			del parentsDict[k]
+	del evensL
 	#store parents of any sigmas leftover
 	for k in parentsDict.keys(): #range(min(parentsDict.keys()), max(parentsDict.keys()) +1):
 		# print(f"storing k of {k}")

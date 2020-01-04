@@ -3,6 +3,8 @@ import os
 from pathlib import Path
 import time
 import expand
+import sys
+from objsize import get_deep_size
 
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 #THIS_FOLDER = "D:/Mass Storage/Math/chompy"
@@ -14,8 +16,8 @@ EVENS_FOLDER = Path(DATA_FOLDER, "./evens/")
 ROOTS_FOLDER = Path(DATA_FOLDER, "./rootBatches/")
 ROOTS_BY_SIGMA_FOLDER = Path(DATA_FOLDER, "./rootsBySigma/")
 
-MAX_M = 12
-MAX_N = 12
+MAX_M = 15
+MAX_N = 15
 
 DELTA_N = 1
 DELTA_M = 1
@@ -54,6 +56,7 @@ def main():
 		n += dN
 
 		#load all evens just for us to check if it's working properly
+		print("genning all evens")
 		allEvens = set()
 		for x in range(1,n+1):
 			eX = util.load(EVENS_FOLDER / f"evens{x}.dat")
@@ -61,6 +64,8 @@ def main():
 
 		print(f"{m}X{n} total evens: {len(allEvens)}\t in {str(endT-sT)}s")
 		# print(str(m)+"X"+str(n)+" evens: " + str(allEvens))
+		print(f"size of all evens: {sys.getsizeof(allEvens)}")
+		print(f"Deep allEvens objSize: {get_deep_size(allEvens)}")
 		# print()
 
 		#store the m and n completed, evens are stored in side and down expand
@@ -113,5 +118,5 @@ def seed():
 	util.store(set([(1,)]), EVENS_FOLDER / "evens1.dat")
 
 if __name__ == '__main__':
-	seed()
+	# seed()
 	main()
