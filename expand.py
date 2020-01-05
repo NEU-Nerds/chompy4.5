@@ -1,9 +1,9 @@
 import util
 import os
 import sys
-from objsize import get_deep_size
+# from objsize import get_deep_size
 import psutil
-from guppy import hpy
+# from guppy import hpy
 
 #The maximum # of roots in one batch, eventually change to be dependent on
 #the length of roots so memory use is constant
@@ -25,19 +25,64 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 
 		evens = set()
 		#new roots is dumped to disk when it hits MAX_ROOTS and cleared
-		newRoots = set()
-		#the number of rootsBatches stored to disk already
-		rootsBatches = 0
+		# newRoots = set()
+
 
 		#load each root batch
-		numRootBatches = len(os.listdir(DATA_FOLDER / "oldRoots"))
-		for i in range(numRootBatches):
-			roots = util.load(DATA_FOLDER / f"oldRoots/rootsBatch{i}.dat")
+		# numRootBatches = len(os.listdir(DATA_FOLDER / "oldRoots"))
+		files = os.listdir(DATA_FOLDER / "oldRoots")
+		files.sort()
+
+		for f in files:
+			#get the prefix for this batch
+			# prefix = []
+			# c = 0
+			# while c < len(f) and f[c] != ".":
+			# 	prevC = c
+			# 	while c < len(f) and f[c] != "." and f[c] != "-":
+			# 		c += 1
+			# 	prefix.append(int(f[prevC:c]))
+			# 	if f[c] == ".":
+			# 		break
+			# 	else:
+			# 		c += 1
+
+
+			#{tuple(prefix):set(roots)}
+			newRoots = {}
+			roots = util.load(DATA_FOLDER / "oldRoots/" + f)
 			# print(f"size of roots: {sys.getsizeof(roots)}")
-			print(f"Deep roots objSize: {get_deep_size(roots)}")
+			# print(f"Deep roots objSize: {get_deep_size(roots)}")
 			#RBS is the roots of the new nodes indexed by the sigma of the node
 			#Note a root = node[:-1] (I love how this looks like a face btw)
 			rootsBySigma = util.genRBS(roots, True)
+
+			#try loading previosu parents and
+			try:
+				prevParents = util.load(DATA_FOLDER / f"parents/" + f)
+				# print(f"Deep prevParents objSize: {get_deep_size(prevParents)}")
+				for parent in prevParents:
+					pRoot = parent[:-1]
+					try:
+						rootsBySigma[sum(parent)].remove(pRoot)
+						util.addToNewRoots(parent, newRoots, MAX_BATCH_DEPTH)
+						# newRoots.add(parent)
+					except:
+						pass
+
+					# if len(newRoots) >= MAX_ROOTS:
+					# 	# print(f"size of newRoots: {sys.getsizeof(newRoots)}")
+					# 	# print(f"Deep newRoots objSize: {get_deep_size(newRoots)}")
+					# 	# print(f"size of evens: {sys.getsizeof(evens)}")
+					# 	# print(f"Deep evens objSize: {get_deep_size(evens)}")
+					# 	util.store(newRoots, DATA_FOLDER / f"roots/rootsBatch{rootsBatches}.dat")
+					# 	rootsBatches += 1
+					# 	newRoots.clear()
+
+			except OSError:
+				pass
+
+
 			# print(f"Size of RBS: {sys.getsizeof(rootsBySigma)}")
 			keys = rootsBySigma.keys()
 
@@ -45,51 +90,32 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 			minSigma = min(keys)
 			maxSigma = max(keys)
 
+
+
 			#go through each sigma starting from smallest
 			for sigma in range(minSigma, maxSigma + 1):
-				print(f"Sigma {sigma}")
-				process = psutil.Process(os.getpid())
-				if int(process.memory_info().rss) > 7 * (10**9):
-					h = hpy()
-					print(h.heap())
-					# exit()
-				print("past heap")
-
-				#new parents to be stored to disk for future batches
-				storeParents = set()
-
 				#if this sigma is empty why bother
 				if sigma not in keys:
 					continue
 
+				newParents = {}
+
+				# print(f"Sigma {sigma}")
+				# process = psutil.Process(os.getpid())
+				# if int(process.memory_info().rss) > 7 * (10**9):
+				# 	h = hpy()
+				# 	print(h.heap())
+					# exit()
+				# print("past heap")
+
+				#new parents to be stored to disk for future batches
+				# storeParents = set()
+
 				#try loading previous parents with this sigma from disk and
 				#remove those nodes' roots from RBS
-				try:
-
-					prevParents = util.load(DATA_FOLDER / f"parents/parentsSigma{sigma}.dat")
-					print(f"Deep prevParents objSize: {get_deep_size(prevParents)}")
-					for parent in prevParents:
-						pRoot = parent[:-1]
-						try:
-							rootsBySigma[sum(parent)].remove(pRoot)
-							newRoots.add(parent)
-						except:
-							pass
-
-						if len(newRoots) >= MAX_ROOTS:
-							# print(f"size of newRoots: {sys.getsizeof(newRoots)}")
-							print(f"Deep newRoots objSize: {get_deep_size(newRoots)}")
-							# print(f"size of evens: {sys.getsizeof(evens)}")
-							print(f"Deep evens objSize: {get_deep_size(evens)}")
-							util.store(newRoots, DATA_FOLDER / f"roots/rootsBatch{rootsBatches}.dat")
-							rootsBatches += 1
-							newRoots.clear()
-
-				except OSError:
-					prevParents = None
 
 				#each node here will be even
-				print("going through roots")
+				# print("going through roots")
 				for root in rootsBySigma[sigma]:
 					#create the node, add it to evens
 					node = tuple(list(root) + [sigma - sum(root)] )
@@ -106,47 +132,69 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 							pRoot = parent[:-1]
 							try:
 								rootsBySigma[sum(parent)].remove(pRoot)
-								newRoots.add(parent)
+								# newRoots.add(parent)
+								util.addToNewRoots(parent, newRoots, MAX_BATCH_DEPTH)
 							except:
 								pass
 
-							#check if newRoots needs to be dumped to disk
-							if len(newRoots) >= MAX_ROOTS:
-								# print(f"size of newRoots: {sys.getsizeof(newRoots)}")
-								print(f"Deep newRoots objSize: {get_deep_size(newRoots)}")
-								# print(f"size of evens: {sys.getsizeof(evens)}")
-								print(f"Deep evens objSize: {get_deep_size(evens)}")
-								util.store(newRoots, DATA_FOLDER / f"roots/rootsBatch{rootsBatches}.dat")
-								rootsBatches += 1
-								newRoots.clear()
+							# #check if newRoots needs to be dumped to disk
+							# if len(newRoots) >= MAX_ROOTS:
+							# 	# print(f"size of newRoots: {sys.getsizeof(newRoots)}")
+							# 	# print(f"Deep newRoots objSize: {get_deep_size(newRoots)}")
+							# 	# print(f"size of evens: {sys.getsizeof(evens)}")
+							# 	# print(f"Deep evens objSize: {get_deep_size(evens)}")
+							# 	util.store(newRoots, DATA_FOLDER / f"roots/rootsBatch{rootsBatches}.dat")
+							# 	rootsBatches += 1
+							# 	newRoots.clear()
 
-						#add parent to be stored list
-						storeParents.add(parent)
+						#add parent to be stored dict
+						if len(parent) > MAX_BATCH_DEPTH:
+							pPrefix = tuple(parent[:len(parent)-MAX_BATCH_DEPTH])
+						else:
+							pPrefix = 0
+						if pPrefix in newParents.keys():
+							newParents[pPrefix].add(parent)
+						else:
+							newParents[pPrefix] = set(parent)
 
 				#try to load any parents of this sigma already on disk and combine with this batches
-				if prevParents:
-					combParents = prevParents.union(storeParents)
-					del prevParents
-				else:
-					combParents = storeParents
+				for p in newParents.keys():
+					try:
+						oldParents = util.load(DATA_FOLDER / f"parents/{str(p)}.dat")
+						combParents = oldParents.union(newParents[p])
+						del oldParents
 
-				util.store(combParents, DATA_FOLDER / f"parents/parentsSigma{sigma}.dat")
-				print(f"Deep combParents objSize: {get_deep_size(combParents)}")
-				del storeParents
-				del combParents
+					except OSError:
+						combParents = newParents[p]
+
+					util.store(combParents, DATA_FOLDER / f"parents/{str(p)}.dat")
+
+				for p in newRoots.keys():
+					try:
+						oldRoots = util.load(DATA_FOLDER / f"roots/{str(p)}.dat")
+						combRoots = oldRoots.union(newRoots[p])
+						del oldRoots
+
+					except OSError:
+						combRoots = newRoots[p]
+
+					util.store(combRoots, DATA_FOLDER / f"roots/{str(p)}.dat")
+
+				# print(f"Deep combParents objSize: {get_deep_size(combParents)}")
+				del newParents
 				del rootsBySigma[sigma]
 
 			del rootsBySigma
 
 		# print(f"size of newRoots: {sys.getsizeof(newRoots)}")
-		print(f"Deep newRoots objSize: {get_deep_size(newRoots)}")
-		util.store(newRoots, DATA_FOLDER / f"roots/rootsBatch{rootsBatches}.dat")
-		rootsBatches += 1
+		# print(f"Deep newRoots objSize: {get_deep_size(newRoots)}")
+		# util.store(newRoots, DATA_FOLDER / f"roots/rootsBatch{rootsBatches}.dat")
+		# rootsBatches += 1
 
 		# print("rootsBatches: " + str(rootsBatches))
-		del newRoots
+		# del newRoots
 		# print(f"size of evens: {sys.getsizeof(evens)}")
-		print(f"Deep evens objSize: {get_deep_size(evens)}")
+		# print(f"Deep evens objSize: {get_deep_size(evens)}")
 		util.store(evens, DATA_FOLDER / f"evens/evens{d}.dat")
 		del evens
 	# print("finished all down expands")
@@ -159,7 +207,7 @@ def expandSide (DATA_FOLDER, m, n, dM, dN):
 	for x in range(m+1, m+dM + 1):
 		roots.add((x,))
 	util.emptyDir(DATA_FOLDER / "sideRoots")
-	util.store(roots, DATA_FOLDER / "sideRoots/rootsBatch0.dat")
+	util.store(roots, DATA_FOLDER / "sideRoots/0.dat")
 
 	for d in range(2, n + dN):
 		# print(f"d: {d}")
@@ -168,9 +216,21 @@ def expandSide (DATA_FOLDER, m, n, dM, dN):
 
 	#take resulting side roots and add them to main roots
 	#currently not combining batches cause that would be more work but maybe worth it??
-	numRootBatches = len(os.listdir(DATA_FOLDER / "roots"))
-	for i in range(len(os.listdir(DATA_FOLDER / "sideRoots"))):
-		os.rename(DATA_FOLDER / f"sideRoots/rootsBatch{i}.dat", DATA_FOLDER / f"roots/rootsBatch{numRootBatches+i}.dat")
+	# numRootBatches = len(os.listdir(DATA_FOLDER / "roots"))
+	# for i in range(len(os.listdir(DATA_FOLDER / "sideRoots"))):
+	# 	os.rename(DATA_FOLDER / f"sideRoots/rootsBatch{i}.dat", DATA_FOLDER / f"roots/rootsBatch{numRootBatches+i}.dat")
+
+	files = os.listdir(DATA_FOLDER / "sideOldRoots")
+	for f in files:
+		try:
+			oldRoots = util.load(DATA_FOLDER / f"roots/{f}")
+			combRoots = oldRoots.update(util.load(DATA_FOLDER / "sideRoots" + f))
+			util.store(combRoots, DATA_FOLDER / f"roots/{f}")
+		except OSError:
+			os.rename(DATA_FOLDER / f"sideRoots/{f}" , DATA_FOLDER / f"roots/{f}")
+
+
+
 	# print("finished expandSide")
 
 def expandSideLayer(DATA_FOLDER, depth, pM, dM):
@@ -190,22 +250,38 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM):
 	evens = util.load(DATA_FOLDER / f"evens/evens{depth}.dat")
 	util.genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM)
 
-	#new roots is dumped to disk when it hits MAX_ROOTS and cleared
-	newRoots = set()
-	#the number of rootsBatches stored to disk already
-	rootsBatches = 0
 
 	#Yes the code below is nearly the same from expand down except the file paths
 	#I'll turn it into a function later - Ty
 
 	#load each root batch
-	numRootBatches = len(os.listdir(DATA_FOLDER / "sideOldRoots"))
-	for i in range(numRootBatches):
-		roots = util.load(DATA_FOLDER / f"sideOldRoots/rootsBatch{i}.dat")
+	files = os.listdir(DATA_FOLDER / "sideOldRoots")
+	files.sort()
+
+	for f in files:
+		newRoots = {}
+
+		roots = util.load(DATA_FOLDER / f"sideOldRoots/{f}")
 
 		#RBS is the roots of the new nodes indexed by the sigma of the node
 		#Note a root = node[:-1] (I love how this looks like a face btw)
 		rootsBySigma = util.genRBS(roots)
+
+		#try loading previosu parents and
+		try:
+			prevParents = util.load(DATA_FOLDER / f"parents/{f}")
+			# print(f"Deep prevParents objSize: {get_deep_size(prevParents)}")
+			for parent in prevParents:
+				pRoot = parent[:-1]
+				try:
+					rootsBySigma[sum(parent)].remove(pRoot)
+					util.addToNewRoots(parent, newRoots, MAX_BATCH_DEPTH)
+					# newRoots.add(parent)
+				except:
+					pass
+
+		except OSError:
+			pass
 		# print(f"Size of RBS: {sys.getsizeof(rootsBySigma)}")
 		keys = rootsBySigma.keys()
 
@@ -215,83 +291,110 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM):
 
 		#go through each sigma starting from smallest
 		for sigma in range(minSigma, maxSigma + 1):
-			#new parents to be stored to disk for future batches
-			storeParents = set()
-
+			print(f"sigma: {sigma}")
 			#if this sigma is empty why bother
 			if sigma not in keys:
 				continue
 
+			newParents = {}
+
 			#try loading previous parents with this sigma from disk and
 			#remove those nodes' roots from RBS
-			try:
-				prevParents = util.load(DATA_FOLDER / f"parents/parentsSigma{sigma}.dat")
-				for parent in prevParents:
-					pRoot = parent[:-1]
-					try:
-						rootsBySigma[sum(parent)].remove(pRoot)
-						newRoots.add(parent)
-					except:
-						pass
-
-					if len(newRoots) >= MAX_ROOTS:
-						# print(f"size of newRoots: {sys.getsizeof(newRoots)}")
-						util.store(newRoots, DATA_FOLDER / f"sideRoots/rootsBatch{rootsBatches}.dat")
-						rootsBatches += 1
-						newRoots.clear()
-
-			except OSError:
-				prevParents = None
+			# try:
+			# 	prevParents = util.load(DATA_FOLDER / f"parents/parentsSigma{sigma}.dat")
+			# 	for parent in prevParents:
+			# 		pRoot = parent[:-1]
+			# 		try:
+			# 			rootsBySigma[sum(parent)].remove(pRoot)
+			# 			newRoots.add(parent)
+			# 		except:
+			# 			pass
+			#
+			# 		if len(newRoots) >= MAX_ROOTS:
+			# 			# print(f"size of newRoots: {sys.getsizeof(newRoots)}")
+			# 			util.store(newRoots, DATA_FOLDER / f"sideRoots/rootsBatch{rootsBatches}.dat")
+			# 			rootsBatches += 1
+			# 			newRoots.clear()
+			#
+			# except OSError:
+			# 	prevParents = None
 
 			#each node here will be even
 			for root in rootsBySigma[sigma]:
+				print(f"root: {root}")
 				#create the node, add it to evens
 				node = tuple(list(root) + [sigma - sum(root)] )
 				evens.add(node)
 
 				#get the parents of node
 				start = root[0]
+				print(f"node: {node}\t start: {start}\t pM: {pM}")
 				parents = util.getParents(start, (pM)-start, node)
-
+				print(f"parents: {parents}")
 				#create the parent nodes, remove their root from rootsBySigma, add to newRoots
 				for parent in parents:
+					print(f"Parent: {parent}")
 					#if greater than maxSigma then don't bother (won't be in this batch)
 					if sum(parent) <= maxSigma:
 						pRoot = parent[:-1]
 						try:
 							rootsBySigma[sum(parent)].remove(pRoot)
-							newRoots.add(parent)
+							util.addToNewRoots(parent, newRoots, MAX_BATCH_DEPTH)
 						except:
 							pass
 
-						#check if newRoots needs to be dumped to disk
-						if len(newRoots) >= MAX_ROOTS:
-							# print("STORING NEW ROOTS")
-							# print(f"size of newRoots: {sys.getsizeof(newRoots)}")
-							util.store(newRoots, DATA_FOLDER / f"sideRoots/rootsBatch{rootsBatches}.dat")
-							rootsBatches += 1
-							newRoots.clear()
-
+						# #check if newRoots needs to be dumped to disk
+						# if len(newRoots) >= MAX_ROOTS:
+						# 	# print("STORING NEW ROOTS")
+						# 	# print(f"size of newRoots: {sys.getsizeof(newRoots)}")
+						# 	util.store(newRoots, DATA_FOLDER / f"sideRoots/rootsBatch{rootsBatches}.dat")
+						# 	rootsBatches += 1
+						# 	newRoots.clear()
+					#add parent to be stored dict
+					if len(parent) > MAX_BATCH_DEPTH:
+						pPrefix = tuple(parent[:len(parent)-MAX_BATCH_DEPTH])
+					else:
+						pPrefix = 0
+					if pPrefix in newParents.keys():
+						newParents[pPrefix].add(parent)
+					else:
+						newParents[pPrefix] = set(parent)
 					#add to be stored list
-					storeParents.add(parent)
+					# storeParents.add(parent)
 
 			#try to load any parents of this sigma already on disk and combine with this batches
-			if prevParents:
-				combParents = prevParents.union(storeParents)
-				del prevParents
-			else:
-				combParents = storeParents
+			#try to load any parents of this sigma already on disk and combine with this batches
+			print(f"newParents: {newParents}")
+			for p in newParents.keys():
+				try:
+					oldParents = util.load(DATA_FOLDER / f"parents/{str(p)}.dat")
+					combParents = oldParents.union(newParents[p])
+					del oldParents
 
-			util.store(combParents, DATA_FOLDER / f"parents/parentsSigma{sigma}.dat")
+				except OSError:
+					combParents = newParents[p]
 
-			del storeParents
-			del combParents
+				util.store(combParents, DATA_FOLDER / f"parents/{str(p)}.dat")
+
+			for p in newRoots.keys():
+				try:
+					oldRoots = util.load(DATA_FOLDER / f"sideRoots/{str(p)}.dat")
+					combRoots = oldRoots.union(newRoots[p])
+					del oldRoots
+
+				except OSError:
+					combRoots = newRoots[p]
+				print("Storing")
+				util.store(combRoots, DATA_FOLDER / f"sideRoots/{str(p)}.dat")
+			# del storeParents
+			# del combParents
+			del newParents
 			del rootsBySigma[sigma]
 
 		del rootsBySigma
 	# print(f"size of newRoots: {sys.getsizeof(newRoots)}")
-	util.store(newRoots, DATA_FOLDER / f"sideRoots/rootsBatch{rootsBatches}.dat")
-	rootsBatches += 1
+	# util.store(newRoots, DATA_FOLDER / f"sideRoots/rootsBatch{rootsBatches}.dat")
+	# rootsBatches += 1
 
 	# print("rootsBatches: " + str(rootsBatches))
 	del newRoots

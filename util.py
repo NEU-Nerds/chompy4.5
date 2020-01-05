@@ -3,7 +3,19 @@ import os
 import shutil
 import time
 import sys
-from objsize import get_deep_size
+# from objsize import get_deep_size
+
+def addToNewRoots(node, newRoots, batchDepth):
+	if len(node) > batchDepth:
+		p = tuple(node[:len(node)-batchDepth])
+	else:
+		p = 0
+
+	if p in newRoots.keys():
+		newRoots[p].add(node)
+	else:
+		newRoots[p] = set(node)
+
 
 #RBS is the roots of the new nodes indexed by the sigma of the node
 #Note a root = node[:-1] (I love how this looks like a face btw)
@@ -18,9 +30,9 @@ def genRBS(roots, log=False):
 			else:
 				rootsBySigma[key] = set([root])
 				# keys.add(key)
-	if log:
+	# if log:
 		# print(f"Size of RBS: {sys.getsizeof(rootsBySigma)}")
-		print(f"Deep RBS objSize: {get_deep_size(rootsBySigma)}")
+		# print(f"Deep RBS objSize: {get_deep_size(rootsBySigma)}")
 	return rootsBySigma
 
 #get the parents of the existing evens and store them in parents directory
