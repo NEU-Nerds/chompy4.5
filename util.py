@@ -12,9 +12,10 @@ def addToNewRoots(node, newRoots, batchDepth):
 		p = 0
 
 	if p in newRoots.keys():
+
 		newRoots[p].add(node)
 	else:
-		newRoots[p] = set(node)
+		newRoots[p] = set([node])
 
 
 #RBS is the roots of the new nodes indexed by the sigma of the node
@@ -36,7 +37,7 @@ def genRBS(roots, log=False):
 	return rootsBySigma
 
 #get the parents of the existing evens and store them in parents directory
-def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM):
+def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, maxDepth):
 
 
 	#sort evensL so that lowest sigma first, so we can store parents of sigmas we're done with
@@ -49,56 +50,50 @@ def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM):
 		#get parents of even and add to parentsDict
 		parents = getParents(pM, dM, even)
 		for parent in parents:
-			sigma = sum(parent)
-			if sigma in parentsDict.keys():
-				parentsDict[sigma].add(parent)
+
+			if len(parent) > maxDepth:
+				pPrefix = tuple(parent[:len(parent)-maxDepth])
 			else:
-				parentsDict[sigma] = set([parent])
-
-		#Store parents of all keys that are less than any possible parent yet to be generated
-		for k in range(min(parentsDict.keys()), sum(even) + 1):
-
-			if k not in parentsDict.keys():
-				continue
-
-			#merge with existing parents
-			try:
-				prevParents = load(DATA_FOLDER / f"parents/parentsSigma{k}.dat")
-			except:
-				prevParents = None
-
-			if prevParents:
-				combParents = prevParents.union(parentsDict[k])
-				del prevParents
+				pPrefix = 0
+			if pPrefix in parentsDict.keys():
+				parentsDict[pPrefix].add(parent)
 			else:
-				combParents = parentsDict[k]
+				parentsDict[pPrefix] = set([parent])
 
-			store(combParents, DATA_FOLDER / f"parents/parentsSigma{k}.dat")
+	#BATCH??
+	for p in parentsDict.keys():
+		try:
+			oldParents = load(DATA_FOLDER / f"parents/{str(p)}.dat")
+			combParents = oldParents.union(parentsDict[p])
+			del oldParents
 
-			del prevParents
-			del combParents
-			del parentsDict[k]
+		except OSError:
+			combParents = parentsDict[p]
+		# print(f"p: {p}")
+		store(combParents, DATA_FOLDER / f"parents/{str(p)}.dat")
+
+
 	del evensL
 	#store parents of any sigmas leftover
-	for k in parentsDict.keys(): #range(min(parentsDict.keys()), max(parentsDict.keys()) +1):
-		# print(f"storing k of {k}")
-
-		#merge with existing parents
-		try:
-			prevParents = load(DATA_FOLDER / f"parents/parentsSigma{k}.dat")
-		except:
-			prevParents = None
-
-		if prevParents:
-			combParents = prevParents.union(parentsDict[k])
-			del prevParents
-		else:
-			combParents = parentsDict[k]
-
-		store(combParents, DATA_FOLDER / f"parents/parentsSigma{k}.dat")
-
-		del prevParents
-		del combParents
+	# for k in parentsDict.keys(): #range(min(parentsDict.keys()), max(parentsDict.keys()) +1):
+	# 	# print(f"storing k of {k}")
+	#
+	# 	#merge with existing parents
+	# 	try:
+	# 		prevParents = load(DATA_FOLDER / f"parents/parentsSigma{k}.dat")
+	# 	except:
+	# 		prevParents = None
+	#
+	# 	if prevParents:
+	# 		combParents = prevParents.union(parentsDict[k])
+	# 		del prevParents
+	# 	else:
+	# 		combParents = parentsDict[k]
+	#
+	# 	store(combParents, DATA_FOLDER / f"parents/parentsSigma{k}.dat")
+	#
+	# 	del prevParents
+	# 	del combParents
 
 	del parentsDict
 
@@ -119,7 +114,7 @@ def getParents (pM, dM, evenNode):
 			# if depth is not 0:
 				# stop at the max of (start or int at previous depth +1)
 
-		start = max(pM + 1, evenNode[d] + 1)
+		start = max(pM, evenNode[d] + 1)
 		stop = pM + dM + 1
 		if d != 0:
 			# start = min(evenNode[d] + 1, pM + 1)

@@ -4,7 +4,7 @@ from pathlib import Path
 import time
 import expand
 import sys
-from objsize import get_deep_size
+# from objsize import get_deep_size
 
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 #THIS_FOLDER = "D:/Mass Storage/Math/chompy"
@@ -16,8 +16,8 @@ EVENS_FOLDER = Path(DATA_FOLDER, "./evens/")
 ROOTS_FOLDER = Path(DATA_FOLDER, "./rootBatches/")
 ROOTS_BY_SIGMA_FOLDER = Path(DATA_FOLDER, "./rootsBySigma/")
 
-MAX_M = 3
-MAX_N = 3
+MAX_M = 4
+MAX_N = 4
 
 DELTA_N = 1
 DELTA_M = 1
@@ -56,7 +56,7 @@ def main():
 		n += dN
 
 		#load all evens just for us to check if it's working properly
-		print("genning all evens")
+		# print("genning all evens")
 		allEvens = set()
 		for x in range(1,n+1):
 			eX = util.load(EVENS_FOLDER / f"evens{x}.dat")
