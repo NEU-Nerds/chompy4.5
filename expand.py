@@ -9,7 +9,7 @@ import sys
 #the length of roots so memory use is constant
 MAX_ROOTS = 10 ** 6
 
-MAX_BATCH_DEPTH = 7
+MAX_BATCH_DEPTH = 2
 
 def expandDown(DATA_FOLDER, m, n, dM, dN):
 	#d = depth
@@ -353,7 +353,7 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM):
 				start = root[0]
 				# print(f"node: {node}\t start: {start}\t pM: {pM}")
 				# parents = util.getParents(start, (pM)-start, node)
-				parents = util.getParents(pM, dM, node)
+				parents = util.getParents(0, pM + dM, node)
 				# print(f"parents: {parents}")
 				#create the parent nodes, remove their root from rootsBySigma, add to newRoots
 				for parent in parents:
