@@ -122,14 +122,14 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 				for root in rootsBySigma[sigma]:
 					#create the node, add it to evens
 					node = tuple(list(root) + [sigma - sum(root)] )
-					print(f"node: {node}")
+					# print(f"node: {node}")
 					evens.add(node)
 
 					#get the parents of node
 					start = root[0]
 					# parents = util.getParents(start, (m)-start, node)
-					parents = util.getParents(m, dM, node)
-					print(f"parents: {parents}")
+					parents = util.getParents(0, m+dM, node)
+					# print(f"parents: {parents}")
 					#create the parent nodes, remove their root from rootsBySigma, add to newRoots
 					for parent in parents:
 						#if greater than maxSigma then don't bother (won't be in this batch)
