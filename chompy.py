@@ -16,8 +16,8 @@ EVENS_FOLDER = Path(DATA_FOLDER, "./evens/")
 ROOTS_FOLDER = Path(DATA_FOLDER, "./rootBatches/")
 ROOTS_BY_SIGMA_FOLDER = Path(DATA_FOLDER, "./rootsBySigma/")
 
-MAX_M = 5
-MAX_N = 5
+MAX_M = 4
+MAX_N = 4
 
 DELTA_N = 1
 DELTA_M = 1
