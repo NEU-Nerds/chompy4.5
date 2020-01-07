@@ -36,7 +36,11 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 		files.sort()
 		print(f"files: {files}")
 		for f in files:
+			roots = util.load(DATA_FOLDER / f"oldRoots/{f}")
+			print(f"roots: {roots}")
 			print(f"\nfile: {f}")
+			prefix = list(roots)[0][:MAX_BATCH_DEPTH+1]
+			print(f"prefix: {prefix}")
 			#get the prefix for this batch
 			# prefix = []
 			# c = 0
@@ -53,7 +57,7 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 
 			#{tuple(prefix):set(roots)}
 			newRoots = {}
-			roots = util.load(DATA_FOLDER / f"oldRoots/{f}")
+
 			# print(f"size of roots: {sys.getsizeof(roots)}")
 			# print(f"Deep roots objSize: {get_deep_size(roots)}")
 			#RBS is the roots of the new nodes indexed by the sigma of the node
@@ -62,31 +66,25 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 			rootsBySigma = util.genRBS(roots, True)
 
 			#try loading previosu parents and
-			try:
-				prevParents = util.load(DATA_FOLDER / f"parents/{f}")
-				print(f"prev parents: {prevParents}")
-				# print(f"Deep prevParents objSize: {get_deep_size(prevParents)}")
-				for parent in prevParents:
-					pRoot = parent[:-1]
-					try:
-						rootsBySigma[sum(parent)].remove(pRoot)
-						util.addToNewRoots(parent, newRoots, MAX_BATCH_DEPTH)
-						# newRoots.add(parent)
-					except:
-						pass
+			for t in range(1, prefix[-1]+1):
 
-					# if len(newRoots) >= MAX_ROOTS:
-					# 	# print(f"size of newRoots: {sys.getsizeof(newRoots)}")
-					# 	# print(f"Deep newRoots objSize: {get_deep_size(newRoots)}")
-					# 	# print(f"size of evens: {sys.getsizeof(evens)}")
-					# 	# print(f"Deep evens objSize: {get_deep_size(evens)}")
-					# 	util.store(newRoots, DATA_FOLDER / f"roots/rootsBatch{rootsBatches}.dat")
-					# 	rootsBatches += 1
-					# 	newRoots.clear()
+				try:
+					print(f"trying to load: {list(prefix) + [t]}")
+					prevParents = util.load(DATA_FOLDER / f"parents/{tuple(list(prefix) + [t])}.dat")
+					print(f"prev parents: {prevParents}")
+					# print(f"Deep prevParents objSize: {get_deep_size(prevParents)}")
+					for parent in prevParents:
+						pRoot = parent[:-1]
+						try:
+							rootsBySigma[sum(parent)].remove(pRoot)
+							util.addToNewRoots(parent, newRoots, MAX_BATCH_DEPTH)
+							# newRoots.add(parent)
+						except:
+							pass
 
-			except OSError as e:
-				print(f"OS error: {e}")
-				pass
+				except OSError as e:
+					print(f"OS error: {e}")
+					pass
 
 
 			# print(f"Size of RBS: {sys.getsizeof(rootsBySigma)}")
