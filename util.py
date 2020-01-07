@@ -38,8 +38,8 @@ def genRBS(roots, log=False):
 
 #get the parents of the existing evens and store them in parents directory
 def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, maxDepth):
-
-
+	maxDepth = maxDepth + 1
+	print("\ngetting parents from existing evens")
 	#sort evensL so that lowest sigma first, so we can store parents of sigmas we're done with
 	evensL = list(evens)
 	evensL.sort(key=sum)
@@ -47,8 +47,10 @@ def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, maxDepth):
 	#dict of parents by sigma
 	parentsDict = {}
 	for even in evensL:
+		print(f"even: {even}")
 		#get parents of even and add to parentsDict
-		parents = getParents(pM, dM, even)
+		parents = getParents(pM, pM+dM, even)
+		print(f"parents: {parents}")
 		for parent in parents:
 
 			if len(parent) > maxDepth:
@@ -59,7 +61,7 @@ def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, maxDepth):
 				parentsDict[pPrefix].add(parent)
 			else:
 				parentsDict[pPrefix] = set([parent])
-
+	print(f"parentsDict: {parentsDict}")
 	#BATCH??
 	for p in parentsDict.keys():
 		try:
@@ -96,6 +98,7 @@ def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, maxDepth):
 	# 	del combParents
 
 	del parentsDict
+	print("finished parents from evens\n")
 
 # returns the parents of a given node at the same tree depth (don't add the tails)
 # pass in previous width, change in width, and the node
