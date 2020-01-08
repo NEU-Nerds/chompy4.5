@@ -9,7 +9,7 @@ import sys
 #the length of roots so memory use is constant
 MAX_ROOTS = 10 ** 6
 
-MAX_BATCH_DEPTH = 1
+MAX_BATCH_DEPTH = 3
 
 def expandDown(DATA_FOLDER, m, n, dM, dN):
 	#d = depth
@@ -162,7 +162,7 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 						if pPrefix in newParents.keys():
 							newParents[pPrefix].add(parent)
 						else:
-							newParents[pPrefix] = set(parent)
+							newParents[pPrefix] = set([parent])
 
 				#try to load any parents of this sigma already on disk and combine with this batches
 				for p in newParents.keys():
@@ -173,7 +173,8 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 
 					except OSError:
 						combParents = newParents[p]
-					# print(f"p: {p}")
+					print(f"p: {p}")
+					print(f"down storing parents: {combParents}")
 					util.store(combParents, DATA_FOLDER / f"parents/{str(p)}.dat")
 
 				for p in newRoots.keys():
@@ -405,7 +406,8 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM):
 
 				except OSError:
 					combParents = newParents[p]
-				# print(f"p: {p}")
+				print(f"p: {p}")
+				print(f"side storing parents: {combParents}")
 				util.store(combParents, DATA_FOLDER / f"parents/{str(p)}.dat")
 
 			# print("\nNEW STORE")

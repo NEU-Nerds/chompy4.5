@@ -71,7 +71,8 @@ def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, maxDepth):
 
 		except OSError:
 			combParents = parentsDict[p]
-		# print(f"p: {p}")
+		print(f"p: {p}")
+		print(f"existing storing parents: {combParents}")
 		store(combParents, DATA_FOLDER / f"parents/{str(p)}.dat")
 
 
