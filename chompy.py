@@ -25,6 +25,7 @@ DELTA_M = 1
 def main():
 	#previous mxn completed
 	m, n = util.load(DATA_FOLDER / "mXn.dat")
+	prefixes = util.load(DATA_FOLDER / "prefixes.dat")
 	startM = m
 	startN = n
 
@@ -40,14 +41,14 @@ def main():
 		sT = time.time()
 
 		#expand sideways by dM
-		expand.expandSide(DATA_FOLDER, m, n, dM, dN)
+		expand.expandSide(DATA_FOLDER, m, n, dM, dN, prefixes)
 		sideTime = time.time()
 		print(f"Side time: {sideTime - sT}s")
 		util.emptyDir(DATA_FOLDER / "parents")
 		util.emptyDir(DATA_FOLDER / "oldRoots")
 
 		#expand down by dN
-		expand.expandDown(DATA_FOLDER, m, n, dM, dN)
+		expand.expandDown(DATA_FOLDER, m, n, dM, dN, prefixes)
 		print(f"Down time: {time.time() - sideTime}s")
 
 		endT = time.time()
@@ -70,6 +71,7 @@ def main():
 
 		#store the m and n completed, evens are stored in side and down expand
 		util.store((m,n), DATA_FOLDER / "mXn.dat")
+		util.store(prefixes, DATA_FOLDER / "prefixes.dat")
 
 	print(f"\n\nTotal run time for {startM}X{startN} to {m}X{n}: {time.time() - firstST}s ")
 
@@ -116,6 +118,8 @@ def seed():
 	util.store((1,1), DATA_FOLDER / "mXn.dat")
 	# util.store(set(), DATA_FOLDER / "roots/rootsBatch0.dat")
 	util.store(set([(1,)]), EVENS_FOLDER / "evens1.dat")
+	prefixes = set()
+	util.store(prefixes, DATA_FOLDER / "prefixes.dat")
 
 if __name__ == '__main__':
 	seed()

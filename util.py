@@ -5,16 +5,42 @@ import time
 import sys
 # from objsize import get_deep_size
 
-def addToNewRoots(node, newRoots, batchDepth):
-	if len(node) <= batchDepth:
-		p = 0
-	else:
-		p = tuple(node[:len(node)-batchDepth])
 
-	if p in newRoots.keys():
-		newRoots[p].add(node)
+#eventually replace with trie if this takes time
+#all prefixes will be tuples
+def getPrefix(node, prefixes):
+	index = 0
+	while index < len(node):
+		if node[:index] in prefixes:
+			return node[:index]
+		index += 1
+	return (node[0],)
+
+#only split newRoots
+def splitPrefix(prefix, s, prefixes):
+	for t in range(1, prefix[-1]+1):
+		prefixes.add(prefix + (t,))
+	prefixes.remove(prefix)
+
+	nodes = s[prefix]
+	del s[prefix]
+
+	for node in nodes:
+		addToSet(node, s, prefixes)
+
+	#handle parents and nodes files???
+
+
+def addToSet(node, s, prefixes, maxNodes = -1):
+	p = getPrefix(node, prefixes)
+
+	if p in s.keys():
+		s[p].add(node)
 	else:
-		newRoots[p] = set([node])
+		s[p] = set([node])
+
+	if maxNodes > 0 and len(s[p]) > maxNodes:
+		splitPrefix(p, s, prefixes)
 
 
 #RBS is the roots of the new nodes indexed by the sigma of the node
@@ -36,8 +62,8 @@ def genRBS(roots, log=False):
 	return rootsBySigma
 
 #get the parents of the existing evens and store them in parents directory
-def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, maxDepth):
-	maxDepth = maxDepth + 1
+def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, prefixes):
+	# maxDepth = maxDepth + 1
 	# print("\ngetting parents from existing evens")
 	#sort evensL so that lowest sigma first, so we can store parents of sigmas we're done with
 	evensL = list(evens)
@@ -51,16 +77,18 @@ def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, maxDepth):
 		parents = getParents(pM, pM+dM, even)
 		# print(f"parents: {parents}")
 		for parent in parents:
+			addToSet(parent, parentsDict, prefixes)
+			# if len(parent) <= maxDepth:
+			# 	pPrefix = 0
+			# else:
+			# 	pPrefix = tuple(parent[:len(parent)-maxDepth])
+			# pPrefix = getPrefix(parent)
 
-			if len(parent) <= maxDepth:
-				pPrefix = 0
-			else:
-				pPrefix = tuple(parent[:len(parent)-maxDepth])
+			# if pPrefix in parentsDict.keys():
+				# parentsDict[pPrefix].add(parent)
+			# else:
+				# parentsDict[pPrefix] = set([parent])
 
-			if pPrefix in parentsDict.keys():
-				parentsDict[pPrefix].add(parent)
-			else:
-				parentsDict[pPrefix] = set([parent])
 	# print(f"parentsDict: {parentsDict}")
 	#BATCH??
 	for p in parentsDict.keys():
