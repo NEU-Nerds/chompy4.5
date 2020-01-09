@@ -77,26 +77,7 @@ def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, maxDepth):
 
 
 	del evensL
-	#store parents of any sigmas leftover
-	# for k in parentsDict.keys(): #range(min(parentsDict.keys()), max(parentsDict.keys()) +1):
-	# 	# print(f"storing k of {k}")
-	#
-	# 	#merge with existing parents
-	# 	try:
-	# 		prevParents = load(DATA_FOLDER / f"parents/parentsSigma{k}.dat")
-	# 	except:
-	# 		prevParents = None
-	#
-	# 	if prevParents:
-	# 		combParents = prevParents.union(parentsDict[k])
-	# 		del prevParents
-	# 	else:
-	# 		combParents = parentsDict[k]
-	#
-	# 	store(combParents, DATA_FOLDER / f"parents/parentsSigma{k}.dat")
-	#
-	# 	del prevParents
-	# 	del combParents
+
 
 	del parentsDict
 	# print("finished parents from evens\n")
