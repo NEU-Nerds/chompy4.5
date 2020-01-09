@@ -9,12 +9,14 @@ import sys
 #the length of roots so memory use is constant
 MAX_ROOTS = 10 ** 6
 
-MAX_BATCH_DEPTH = 3
+MAX_BATCH_DEPTH = 8
+ROOTS_DEPTH = MAX_BATCH_DEPTH - 1
+PARENTS_DEPTH = MAX_BATCH_DEPTH
 
 def expandDown(DATA_FOLDER, m, n, dM, dN):
 	#d = depth
 	for d in range(n+1, n+dN + 1):
-		print(f"\nExpandingDown d = {d}")
+		# print(f"\nExpandingDown d = {d}")
 
 		#clean out unneaded data
 		util.emptyDir(DATA_FOLDER / "parents")
@@ -34,26 +36,19 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 		# numRootBatches = len(os.listdir(DATA_FOLDER / "oldRoots"))
 		files = os.listdir(DATA_FOLDER / "oldRoots")
 		files.sort()
-		print(f"files: {files}")
+		# print(f"files: {files}")
 		for f in files:
+			# print(f"\nfile: {f}")
 			roots = util.load(DATA_FOLDER / f"oldRoots/{f}")
-			print(f"roots: {roots}")
-			print(f"\nfile: {f}")
-			prefix = list(roots)[0][:MAX_BATCH_DEPTH+1]
-			print(f"prefix: {prefix}")
-			#get the prefix for this batch
-			# prefix = []
-			# c = 0
-			# while c < len(f) and f[c] != ".":
-			# 	prevC = c
-			# 	while c < len(f) and f[c] != "." and f[c] != "-":
-			# 		c += 1
-			# 	prefix.append(int(f[prevC:c]))
-			# 	if f[c] == ".":
-			# 		break
-			# 	else:
-			# 		c += 1
+			# print(f"roots: {roots}")
 
+			# if MAX_BATCH_DEPTH+1 > len(list(roots)[0]):
+			n1 = list(roots)[0]
+			if len(n1) <= ROOTS_DEPTH:
+				prefix = 0
+			else:
+				prefix = n1[:len(n1)-ROOTS_DEPTH]
+			# print(f"prefix: {prefix}")
 
 			#{tuple(prefix):set(roots)}
 			newRoots = {}
@@ -63,28 +58,28 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 			#RBS is the roots of the new nodes indexed by the sigma of the node
 			#Note a root = node[:-1] (I love how this looks like a face btw)
 			# print(f"roots: {roots}")
-			rootsBySigma = util.genRBS(roots, True)
+			rootsBySigma = util.genRBS(roots)
 
-			#try loading previosu parents and
-			for t in range(1, prefix[-1]+1):
+			#try loading previosu parents
+			try:
+				# print(f"trying to load parents file: {prefix}")
+				prevParents = util.load(DATA_FOLDER / f"parents/{prefix}.dat")
+				# print(f"prev parents: {prevParents}")
+				# print(f"Deep prevParents objSize: {get_deep_size(prevParents)}")
+				for parent in prevParents:
+					pRoot = parent[:-1]
+					try:
+						rootsBySigma[sum(parent)].remove(pRoot)
+						# print(f"adding {parent} to roots")
+						util.addToNewRoots(parent, newRoots, ROOTS_DEPTH)
+						# print(f"newRoots: {newRoots}")
+					except:
+						# print("excepted")
+						pass
 
-				try:
-					print(f"trying to load: {list(prefix) + [t]}")
-					prevParents = util.load(DATA_FOLDER / f"parents/{tuple(list(prefix) + [t])}.dat")
-					print(f"prev parents: {prevParents}")
-					# print(f"Deep prevParents objSize: {get_deep_size(prevParents)}")
-					for parent in prevParents:
-						pRoot = parent[:-1]
-						try:
-							rootsBySigma[sum(parent)].remove(pRoot)
-							util.addToNewRoots(parent, newRoots, MAX_BATCH_DEPTH)
-							# newRoots.add(parent)
-						except:
-							pass
-
-				except OSError as e:
-					print(f"OS error: {e}")
-					pass
+			except OSError as e:
+				# print(f"OS error: {e}")
+				pass
 
 
 			# print(f"Size of RBS: {sys.getsizeof(rootsBySigma)}")
@@ -101,10 +96,10 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 				#if this sigma is empty why bother
 				if sigma not in keys:
 					continue
-
+				# newRoots = {}
 				newParents = {}
 
-				print(f"Sigma {sigma}")
+				# print(f"Sigma {sigma}")
 				# process = psutil.Process(os.getpid())
 				# if int(process.memory_info().rss) > 7 * (10**9):
 				# 	h = hpy()
@@ -120,27 +115,28 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 
 				#each node here will be even
 				# print("going through roots")
-				print(f"RBS {rootsBySigma}")
+				# print(f"RBS {rootsBySigma}")
 				for root in rootsBySigma[sigma]:
 					#create the node, add it to evens
 					node = tuple(list(root) + [sigma - sum(root)] )
-					print(f"node: {node}")
+					# print(f"node: {node}")
 					evens.add(node)
 
 					#get the parents of node
 					start = root[0]
 					# parents = util.getParents(start, (m)-start, node)
 					parents = util.getParents(0, m+dM, node)
-					print(f"parents: {parents}")
+					# print(f"parents: {parents}")
 					#create the parent nodes, remove their root from rootsBySigma, add to newRoots
 					for parent in parents:
 						#if greater than maxSigma then don't bother (won't be in this batch)
 						if sum(parent) <= maxSigma:
 							pRoot = parent[:-1]
 							try:
+								# print(f"removing parent: {parent}\tpRoot: {pRoot}")
 								rootsBySigma[sum(parent)].remove(pRoot)
 								# newRoots.add(parent)
-								util.addToNewRoots(parent, newRoots, MAX_BATCH_DEPTH)
+								util.addToNewRoots(parent, newRoots, ROOTS_DEPTH)
 							except:
 								pass
 
@@ -155,39 +151,52 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 							# 	newRoots.clear()
 
 						#add parent to be stored dict
-						if len(parent) > MAX_BATCH_DEPTH:
-							pPrefix = tuple(parent[:len(parent)-MAX_BATCH_DEPTH])
-						else:
+						if len(parent) <= PARENTS_DEPTH:
 							pPrefix = 0
+						else:
+							pPrefix = tuple(parent[:len(parent)-PARENTS_DEPTH])
+
 						if pPrefix in newParents.keys():
 							newParents[pPrefix].add(parent)
 						else:
 							newParents[pPrefix] = set([parent])
 
 				#try to load any parents of this sigma already on disk and combine with this batches
+				# print("STORING")
 				for p in newParents.keys():
+					# print(f"p: {p}")
 					try:
 						oldParents = util.load(DATA_FOLDER / f"parents/{str(p)}.dat")
-						combParents = oldParents.union(newParents[p])
+						# print(f"oldParents: {oldParents}\tnewParents: {newParents[p]}")
+
+						oldParents.update(newParents[p])
+						combParents = oldParents
+						# print("combined")
 						del oldParents
 
 					except OSError:
-						combParents = newParents[p]
-					print(f"p: {p}")
-					print(f"down storing parents: {combParents}")
-					util.store(combParents, DATA_FOLDER / f"parents/{str(p)}.dat")
+						combParents = set(newParents[p])
 
+					# print(f"down storing parents: {combParents}")
+
+					util.store(combParents, DATA_FOLDER / f"parents/{str(p)}.dat")
+				newParents.clear()
+				# print(f"newRoots: {newRoots}")
 				for p in newRoots.keys():
+					# print(f"roots p: {p}")
 					try:
 						oldRoots = util.load(DATA_FOLDER / f"roots/{str(p)}.dat")
-						combRoots = oldRoots.union(newRoots[p])
+						oldRoots.update(newRoots[p])
+						combRoots = oldRoots
+
 						del oldRoots
+						# print("combined")
 
 					except OSError:
 						combRoots = newRoots[p]
 					# print(f"combRoots {combRoots}")
 					util.store(combRoots, DATA_FOLDER / f"roots/{str(p)}.dat")
-
+				newRoots.clear()
 				# print(f"Deep combParents objSize: {get_deep_size(combParents)}")
 				del newParents
 				del rootsBySigma[sigma]
@@ -208,7 +217,7 @@ def expandDown(DATA_FOLDER, m, n, dM, dN):
 	# print("finished all down expands")
 
 def expandSide (DATA_FOLDER, m, n, dM, dN):
-	print("\nExpanding Side")
+	# print("\nExpanding Side")
 	# print(f"m: {m}\tn: {n}\tdM: {dM}\ndN: {dN}")
 	#initialize the root roots with path len 1
 	roots = set()
@@ -230,7 +239,7 @@ def expandSide (DATA_FOLDER, m, n, dM, dN):
 	# 	os.rename(DATA_FOLDER / f"sideRoots/rootsBatch{i}.dat", DATA_FOLDER / f"roots/rootsBatch{numRootBatches+i}.dat")
 
 	files = os.listdir(DATA_FOLDER / "sideRoots")
-	# print(f"files: {files}")
+	# print(f"combining files: {files}")
 	for f in files:
 		try:
 			oldRoots = util.load(DATA_FOLDER / f"roots/{f}")
@@ -266,7 +275,7 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM):
 	evens = util.load(DATA_FOLDER / f"evens/evens{depth}.dat")
 
 
-	util.genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, MAX_BATCH_DEPTH)
+	util.genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, PARENTS_DEPTH)
 
 
 	#Yes the code below is nearly the same from expand down except the file paths
@@ -287,8 +296,16 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM):
 		rootsBySigma = util.genRBS(roots)
 		# print(f"RBS: {rootsBySigma}")
 		#try loading previosu parents and
+		n1 = list(roots)[0]
+		if len(n1) <= PARENTS_DEPTH:
+			prefix = 0
+		else:
+			prefix = n1[:len(n1)-PARENTS_DEPTH]
+		# print(f"prefix: {prefix}")
+
 		try:
-			prevParents = util.load(DATA_FOLDER / f"parents/{f}")
+			# print("trying to load parents")
+			prevParents = util.load(DATA_FOLDER / f"parents/{prefix}.dat")
 			# print(f"loaded prevParents: {prevParents}")
 			# print(f"Deep prevParents objSize: {get_deep_size(prevParents)}")
 			for parent in prevParents:
@@ -298,7 +315,7 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM):
 
 					rootsBySigma[sum(parent)].remove(pRoot)
 					# print(f"adding parent from existing: {parent}")
-					util.addToNewRoots(parent, newRoots, MAX_BATCH_DEPTH)
+					util.addToNewRoots(parent, newRoots, ROOTS_DEPTH)
 					# print(f"newRoots: {newRoots}")
 					# newRoots.add(parent)
 				except Exception as e:
@@ -371,7 +388,7 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM):
 							rootsBySigma[sum(parent)].remove(pRoot)
 							# print(f"postRBS: {rootsBySigma}")
 							# print(f"adding parent from new: {parent}")
-							util.addToNewRoots(parent, newRoots, MAX_BATCH_DEPTH)
+							util.addToNewRoots(parent, newRoots, ROOTS_DEPTH)
 							# print(f"newRoots2: {newRoots}")
 						except:
 							pass
@@ -384,10 +401,11 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM):
 						# 	rootsBatches += 1
 						# 	newRoots.clear()
 					#add parent to be stored dict
-					if len(parent) > MAX_BATCH_DEPTH:
-						pPrefix = tuple(parent[:len(parent)-MAX_BATCH_DEPTH])
-					else:
+					if len(parent) <= PARENTS_DEPTH:
 						pPrefix = 0
+					else:
+						pPrefix = tuple(parent[:len(parent)-PARENTS_DEPTH])
+
 					if pPrefix in newParents.keys():
 						newParents[pPrefix].add(parent)
 					else:
@@ -398,27 +416,35 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM):
 			#try to load any parents of this sigma already on disk and combine with this batches
 			#try to load any parents of this sigma already on disk and combine with this batches
 			# print(f"newParents: {newParents}")
+			# print("\nNEW STORE")
 			for p in newParents.keys():
-				try:
-					oldParents = util.load(DATA_FOLDER / f"parents/{str(p)}.dat")
-					combParents = oldParents.union(newParents[p])
-					del oldParents
 
-				except OSError:
+				if p == 0:
+					newP = 0
+				else:
+					newP = p[:-1]
+				# print(f"Storing p: {p}\tparents: {newParents[p]}")
+				try:
+					oldParents = util.load(DATA_FOLDER / f"parents/{str(newP)}.dat")
+					oldParents.update(newParents[p])
+					combParents = oldParents
+					# print("combined")
+				except OSError as e:
+					# print(f"error: {e}")
 					combParents = newParents[p]
-				print(f"p: {p}")
-				print(f"side storing parents: {combParents}")
-				util.store(combParents, DATA_FOLDER / f"parents/{str(p)}.dat")
+				# print(f"p: {p}")
+				# print(f"side storing parents: {combParents}")
+				util.store(combParents, DATA_FOLDER / f"parents/{str(newP)}.dat")
+			newParents.clear()
 
 			# print("\nNEW STORE")
 			for p in newRoots.keys():
-				# print("Storing")
-				# print(f"p: {p}")
-				# print(f"newRoots[p]: {newRoots[p]}")
+				# print(f"Storing p: {p}\tnewRoots[p]: {newRoots[p]}")
 				try:
 					oldRoots = util.load(DATA_FOLDER / f"sideRoots/{str(p)}.dat")
 					# print(f"odlRoots: {oldRoots}")
-					combRoots = oldRoots.union(newRoots[p])
+					oldRoots.update(newRoots[p])
+					combRoots = oldRoots
 					del oldRoots
 
 				except OSError:
@@ -426,6 +452,7 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM):
 
 				# print(f"combRoots {combRoots}")
 				util.store(combRoots, DATA_FOLDER / f"sideRoots/{str(p)}.dat")
+			newRoots.clear()
 			# del storeParents
 			# del combParents
 			del newParents
