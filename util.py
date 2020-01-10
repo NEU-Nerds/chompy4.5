@@ -195,16 +195,24 @@ def emptyDir(folder):
 			print('Failed to delete %s. Reason: %s' % (file_path, e))
 
 def dirStore(data, folder, name):
-	if os.path.isdir(folder / name):
-		store(data, folder / name / f"{(len(os.listdir(folder / name)))}.dat")
-	else:
+	try:
 		os.mkdir(folder / name)
-		store(data, folder / name / "0.dat")
+	except:
+		pass
+	# if os.path.isdir(folder / name):
+	# print(f"contents: {os.listdir(folder / name)}")
+	path1 = folder / name / f"{(len(os.listdir(folder / name)))}.dat"
+	# print(f"storing {path1}")
+	store(data, path1)
+	# else:
+
+		# store(data, folder / name / "0.dat")
 
 def multiCombineWrapper(x):
 	combineDir(x[0],x[1])
 
 def combineDir(folder, name):
+	# print(f"combining {folder / name}")
 	all = set()
 	try:
 		for f in os.listdir(folder / name):
@@ -212,7 +220,8 @@ def combineDir(folder, name):
 		shutil.rmtree(folder / name)
 		store(all, folder / (name + ".dat"))
 	except:
-		print(f"failed {folder} / {name}")
+		# print(f"failed {folder} / {name}")
+		pass
 
 def load(fileName):
 	with open (fileName, 'rb') as f:
