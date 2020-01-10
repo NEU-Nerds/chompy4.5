@@ -223,9 +223,18 @@ def combineDir(folder, name):
 		# print(f"failed {folder} / {name}")
 		pass
 
+def evensLoad(x):
+	return load(x)
+
+def rootsLoad(x):
+	return load(x)
+
 def load(fileName):
 	with open (fileName, 'rb') as f:
 		return pickle.load(f)
+
+def rootsStore(x1, x2):
+	store(x1, x2)
 
 def store(data, fileName):
 	with open(fileName, 'wb') as f:

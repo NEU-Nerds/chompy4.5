@@ -38,7 +38,7 @@ def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 		for f in ps:
 			# print(f"file: {f}")
 			try:
-				roots = util.load(DATA_FOLDER / f"oldRoots/{f}.dat")
+				roots = util.rootsLoad(DATA_FOLDER / f"oldRoots/{f}.dat")
 			except FileNotFoundError:
 				# print(f"couldn't find {f}.dat")
 				continue
@@ -127,19 +127,20 @@ def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 				newParents.clear()
 
 				for p in newRoots.keys():
+					util.dirStore(newRoots[p], DATA_FOLDER / "roots", str(p))
 					# print(newRoots.keys())
 					# print(newRoots[p])
 					# print(f"in p: {p}")
-					try:
-						oldRoots = util.load(DATA_FOLDER / f"roots/{str(p)}.dat")
-						oldRoots.update(newRoots[p])
-						combRoots = oldRoots
-						del oldRoots
-
-					except OSError:
-						combRoots = newRoots[p]
-
-					util.store(combRoots, DATA_FOLDER / f"roots/{str(p)}.dat")
+					# try:
+					# 	oldRoots = util.rootsLoad(DATA_FOLDER / f"roots/{str(p)}.dat")
+					# 	oldRoots.update(newRoots[p])
+					# 	combRoots = oldRoots
+					# 	del oldRoots
+					#
+					# except OSError:
+					# 	combRoots = newRoots[p]
+					#
+					# util.rootsStore(combRoots, DATA_FOLDER / f"roots/{str(p)}.dat")
 					# util.dirStore(newRoots[p], DATA_FOLDER / "roots", str(p))
 
 				newRoots.clear()
@@ -151,7 +152,8 @@ def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 
 		# for p in oldPrefixes:
 		# 	util.combineDir(DATA_FOLDER / "parents", str(p))
-
+		for p in prefixes:
+			util.combineDir(DATA_FOLDER / "roots", str(p))
 
 
 			# xs = []
@@ -211,7 +213,7 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM, prefixes):
 
 	#get the parents of the existing evens and store them in parents directory
 	#(maybe we should keep this data around - would be a lot faster maybe?)
-	evens = util.load(DATA_FOLDER / f"evens/evens{depth}.dat")
+	evens = util.evensLoad(DATA_FOLDER / f"evens/evens{depth}.dat")
 
 	#oldPrefixes is static
 	oldPrefixes = prefixes.copy()
@@ -232,7 +234,7 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM, prefixes):
 		# print(f"file: {f}")
 		newRoots = {}
 		try:
-			roots = util.load(DATA_FOLDER / f"sideOldRoots/{f}.dat")
+			roots = util.rootsLoad(DATA_FOLDER / f"sideOldRoots/{f}.dat")
 		except:
 			continue
 
@@ -320,24 +322,28 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM, prefixes):
 			newParents.clear()
 
 			for p in newRoots.keys():
-				try:
-					oldRoots = util.load(DATA_FOLDER / f"sideRoots/{str(p)}.dat")
-					if newRoots[p].issubset(oldRoots):
-						continue
-					oldRoots.update(newRoots[p])
-					combRoots = oldRoots
+				util.dirStore(newRoots[p], DATA_FOLDER / "sideRoots", str(p))
+				# try:
+				# 	oldRoots = util.rootsLoad(DATA_FOLDER / f"sideRoots/{str(p)}.dat")
+				# 	if newRoots[p].issubset(oldRoots):
+				# 		continue
+				# 	oldRoots.update(newRoots[p])
+				# 	combRoots = oldRoots
+				#
+				# 	del oldRoots
+				#
+				# except OSError:
+				# 	combRoots = newRoots[p]
 
-					del oldRoots
-
-				except OSError:
-					combRoots = newRoots[p]
-
-				util.store(combRoots, DATA_FOLDER / f"sideRoots/{str(p)}.dat")
+				# util.rootsStore(combRoots, DATA_FOLDER / f"sideRoots/{str(p)}.dat")
 			newRoots.clear()
 			del newParents
 			del rootsBySigma[sigma]
 
 		del rootsBySigma
+
+	for p in prefixes:
+		util.combineDir(DATA_FOLDER / "sideRoots", str(p))
 
 	util.store(evens, DATA_FOLDER / f"evens/evens{depth}.dat")
 	util.store(prefixes, DATA_FOLDER / "prefixes.dat")
