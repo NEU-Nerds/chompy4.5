@@ -36,7 +36,7 @@ def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 		ps = list(prefixes)
 		ps.sort()
 		for f in ps:
-			print(f"file: {f}")
+			# print(f"file: {f}")
 			try:
 				roots = util.load(DATA_FOLDER / f"oldRoots/{f}.dat")
 			except FileNotFoundError:
@@ -77,6 +77,7 @@ def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 				#if this sigma is empty why bother
 				if sigma not in keys:
 					continue
+				# print(f"sigma: {sigma}")
 
 				newParents = {}
 
@@ -85,11 +86,11 @@ def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 					#create the node, add it to evens
 					node = tuple(list(root) + [sigma - sum(root)] )
 					evens.add(node)
-					print(f"node: {node}")
+					# print(f"node: {node}")
 					#get the parents of node
 					start = root[0]
-					parents = util.getParents(m, dM, node)
-					print(f"parents: {parents}")
+					parents = util.getParents(2, m+dM-2, node)
+					# print(f"parents: {parents}")
 
 					#create the parent nodes, remove their root from rootsBySigma, add to newRoots
 					for parent in parents:
@@ -123,9 +124,12 @@ def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 				newParents.clear()
 
 				for p in newRoots.keys():
+					# print(newRoots.keys())
+					# print(newRoots[p])
+					# print(f"in p: {p}")
 					try:
 						oldRoots = util.load(DATA_FOLDER / f"roots/{str(p)}.dat")
-						oldRoots.update(newParents[p][p])
+						oldRoots.update(newRoots[p])
 						combRoots = oldRoots
 						del oldRoots
 
