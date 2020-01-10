@@ -63,7 +63,7 @@ def genRBS(roots, log=False):
 	return rootsBySigma
 
 #get the parents of the existing evens and store them in parents directory
-def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, prefixes):
+def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, prefixes, MAX_ROOTS):
 	# maxDepth = maxDepth + 1
 	# print("\ngetting parents from existing evens")
 	#sort evensL so that lowest sigma first, so we can store parents of sigmas we're done with
@@ -71,15 +71,17 @@ def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, prefixes):
 	# evensL.sort(key=sum)
 
 	#dict of parents by sigma
-	parentsDict = {}
-	allParents = set()
+	# parentsDict = {}
+	# allParents = set()
+	workingParents = {}
 	for even in evens:
 		# print(f"even: {even}")
 		#get parents of even and add to parentsDict
-		parents = getParents(pM, dM, even)
+		# parents = getParents(pM, dM, even)
+		getParents(pM, dM, even, workingParents, {}, set(), prefixes, prefixes, DATA_FOLDER / "parents", MAX_ROOTS)
 		# print(f"parents: {parents}")
-		for parent in parents:
-			allParents.add(parent)
+		# for parent in parents:
+		# 	allParents.add(parent)
 
 			# if len(parent) <= maxDepth:
 			# 	pPrefix = 0
@@ -92,33 +94,57 @@ def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, prefixes):
 			# else:
 				# parentsDict[pPrefix] = set([parent])
 	# print(f"allParents: {allParents}")
-	for parent in allParents:
-		addToSet(parent, parentsDict, prefixes)
+	# for parent in allParents:
+	# 	addToSet(parent, parentsDict, prefixes)
 	# print(f"parentsDict: {parentsDict}")
 	#BATCH??
-	for p in parentsDict.keys():
+	for pfix in prefixes:
 		try:
-			oldParents = load(DATA_FOLDER / f"parents/{str(p)}.dat")
-			combParents = oldParents.union(parentsDict[p])
-			del oldParents
+			dirStore(workingParents[pfix], DATA_FOLDER / "parents", str(pfix))
+		except:
+			pass
 
-		except OSError:
-			combParents = parentsDict[p]
-		# print(f"p: {p}")
-		# print(f"existing storing parents: {combParents}")
-		store(combParents, DATA_FOLDER / f"parents/{str(p)}.dat")
+	for p in prefixes:
+		combineDir(DATA_FOLDER / "parents", str(p), True)
+	# for p in parentsDict.keys():
+	# 	try:
+	# 		oldParents = load(DATA_FOLDER / f"parents/{str(p)}.dat")
+	# 		combParents = oldParents.union(parentsDict[p])
+	# 		del oldParents
+	#
+	# 	except OSError:
+	# 		combParents = parentsDict[p]
+	# 	# print(f"p: {p}")
+	# 	# print(f"existing storing parents: {combParents}")
+	# 	store(combParents, DATA_FOLDER / f"parents/{str(p)}.dat")
 
 
 	# del evensL
 
 
-	del parentsDict
+	# del parentsDict
 	# print("finished parents from evens\n")
+
+def addParent(p, parents, rBS, newRoots, prefixes, oldPrefixes, folder, MAX_ROOTS):
+	pRoot = p[:-1]
+	try:
+		rBS[sum(p)].remove(pRoot)
+		addToSet(p, newRoots, prefixes, MAX_ROOTS)
+	except:
+		pass
+
+	addToSet(p, parents, oldPrefixes)
+	# parents.add(p)
+	if len(parents) > MAX_ROOTS:
+		for prefix in oldPrefixes:
+			dirStore(parents[prefix], folder, str(prefix))
+
+		parents.clear()
 
 # returns the parents of a given node at the same tree depth (don't add the tails)
 # pass in previous width, change in width, and the node
-def getParents (pM, dM, evenNode):
-	parents = set() # stores all generated parents of the even node, eventually returned
+def getParents (pM, dM, evenNode, parents, rBS, newRoots, prefixes, oldPrefixes, folder, MAX_ROOTS):
+	# parents = {} # stores all generated parents of the even node, eventually returned
 	lastAdded = set() # used to store things between depths for layer equivalence stuff
 	layerEq = layerEquivalence(evenNode)
 
@@ -150,17 +176,20 @@ def getParents (pM, dM, evenNode):
 
 		# see if the last layer is the same as this layer
 		if layerEq[d]:
-			toAdd = set() # new parents to be added to the overall list later
+			toAdd = set() #1 new parents to be added to the overall list later
 			for parent in lastAdded: # go through all of the parents from the previous layer(s)
 				# add new parents based off of the current parent for every possible value
 				# the new parents can be from the value of the current depth to the value of previous depth
 				for i in range(parent[d], parent[d-1] + 1):
 					p = list(parent[:])
 					p[d] = i
+
 					toAdd.add(tuple(p))
 			lastAdded.update(toAdd)
 		else:
-			parents.update(lastAdded) # add the parents from last added to the list of parents
+			for p in lastAdded:
+				addParent(p, parents, rBS, newRoots, prefixes, oldPrefixes, folder, MAX_ROOTS)
+			# parents.update(lastAdded) # add the parents from last added to the list of parents
 			lastAdded = set() # reset lastAdded because the layers are different
 
 		# setting the nodes in the range of previously generated numbers as parents
@@ -169,9 +198,12 @@ def getParents (pM, dM, evenNode):
 			p = list(evenNode[:]) # copy the current node
 			p[d] = i #change the value at current depth
 			lastAdded.add(tuple(p))
-		parents.update(lastAdded)
+		for p in lastAdded:
+			addParent(p, parents, rBS, newRoots, prefixes, oldPrefixes, folder, MAX_ROOTS)
+		# parents.update(lastAdded)
 
-	return parents
+	# return parents
+
 
 # pass in a path representing a node.
 # returns a list of bools with the same length
@@ -211,12 +243,17 @@ def dirStore(data, folder, name):
 def multiCombineWrapper(x):
 	combineDir(x[0],x[1])
 
-def combineDir(folder, name):
+def combineDir(folder, name, combine=False):
 	# print(f"combining {folder / name}")
 	all = set()
 	try:
 		for f in os.listdir(folder / name):
 			all.update(load(folder / name / f))
+		if combine:
+			try:
+				all.update(load(folder / (name + ".dat")))
+			except:
+				pass
 		shutil.rmtree(folder / name)
 		store(all, folder / (name + ".dat"))
 	except:
