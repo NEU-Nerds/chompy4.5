@@ -15,8 +15,8 @@ EVENS_FOLDER = Path(DATA_FOLDER, "./evens")
 MAX_M = 13
 MAX_N = 13
 
-DELTA_N = 100
-DELTA_M = 100
+DELTA_N = 1
+DELTA_M = 1
 
 def main():
 
