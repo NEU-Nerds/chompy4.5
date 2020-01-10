@@ -8,7 +8,7 @@ from multiprocessing import Pool
 
 #The maximum # of roots in one batch, eventually change to be dependent on
 #the length of roots so memory use is constant
-MAX_ROOTS = 10 ** 8
+MAX_ROOTS = 10 ** 7
 
 
 def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
@@ -55,7 +55,6 @@ def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 			util.combineDir(DATA_FOLDER / "parents", str(f))
 			try:
 				prevParents = util.load(DATA_FOLDER / f"parents/{prefix}.dat")
-				# print(f"prevParents: {prevParents}")
 				for parent in prevParents:
 					pRoot = parent[:-1]
 					try:
@@ -63,8 +62,7 @@ def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 						util.addToSet(parent, newRoots, prefixes, MAX_ROOTS)
 					except:
 						pass
-			except OSError as e:
-				# print(f"OSError: {e}")
+			except OSError:
 				pass
 
 			# print(f"postRBS: {rootsBySigma}")
@@ -80,7 +78,6 @@ def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 				#if this sigma is empty why bother
 				if sigma not in keys:
 					continue
-				# print(f"sigma: {sigma}")
 
 				newParents = {}
 
@@ -89,11 +86,10 @@ def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 					#create the node, add it to evens
 					node = tuple(list(root) + [sigma - sum(root)] )
 					evens.add(node)
-					# print(f"node: {node}")
+
 					#get the parents of node
 					start = root[0]
 					parents = util.getParents(2, m+dM-2, node)
-					# print(f"parents: {parents}")
 
 					#create the parent nodes, remove their root from rootsBySigma, add to newRoots
 					for parent in parents:
@@ -108,40 +104,15 @@ def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 
 						#add parent to be stored dict
 						util.addToSet(parent, newParents, oldPrefixes)
-				# print(f"newParents: {newParents}")
+
 				#try to load any parents of this sigma already on disk and combine with this batches
 				for p in newParents.keys():
-					# try:
-					# 	oldParents = util.load(DATA_FOLDER / f"parents/{str(p)}.dat")
-					# 	oldParents.update(newParents[p])
-					# 	combParents = oldParents
-					# 	del oldParents
-					#
-					# except OSError:
-					# 	combParents = set(newParents[p])
-					#
-					# util.store(combParents, DATA_FOLDER / f"parents/{str(p)}.dat")
-
 					util.dirStore(newParents[p], DATA_FOLDER / "parents", str(p))
 
 				newParents.clear()
 
 				for p in newRoots.keys():
 					util.dirStore(newRoots[p], DATA_FOLDER / "roots", str(p))
-					# print(newRoots.keys())
-					# print(newRoots[p])
-					# print(f"in p: {p}")
-					# try:
-					# 	oldRoots = util.rootsLoad(DATA_FOLDER / f"roots/{str(p)}.dat")
-					# 	oldRoots.update(newRoots[p])
-					# 	combRoots = oldRoots
-					# 	del oldRoots
-					#
-					# except OSError:
-					# 	combRoots = newRoots[p]
-					#
-					# util.rootsStore(combRoots, DATA_FOLDER / f"roots/{str(p)}.dat")
-					# util.dirStore(newRoots[p], DATA_FOLDER / "roots", str(p))
 
 				newRoots.clear()
 				del newParents
@@ -149,19 +120,8 @@ def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 
 			del rootsBySigma
 
-
-		# for p in oldPrefixes:
-		# 	util.combineDir(DATA_FOLDER / "parents", str(p))
 		for p in prefixes:
 			util.combineDir(DATA_FOLDER / "roots", str(p))
-
-
-			# xs = []
-			# for p in oldPrefixes:
-			# 	xs.append((DATA_FOLDER / "parents", str(p)))
-			# pool = Pool(processes=1)
-			# pool.map(util.multiCombineWrapper, xs)
-
 
 		util.store(evens, DATA_FOLDER / f"evens/evens{d}.dat")
 		util.store(prefixes, DATA_FOLDER / "prefixes.dat")
@@ -174,10 +134,8 @@ def expandSide (DATA_FOLDER, m, n, dM, dN, prefixes):
 	#initialize the root roots with path len 1
 	util.emptyDir(DATA_FOLDER / "sideRoots")
 	for x in range(m+1, m+dM + 1):
-		# print("storing " + str(x))
 		util.store(set([(x,)]), DATA_FOLDER / f"sideRoots/{(x,)}.dat")
 		prefixes.add((x,))
-
 
 	util.store(prefixes, DATA_FOLDER / "prefixes.dat")
 
@@ -225,9 +183,6 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM, prefixes):
 	#I'll turn it into a function later - Ty. Well we'll see if I do
 
 	#load each root batch
-	# files = os.listdir(DATA_FOLDER / "sideOldRoots")
-	# files.sort()
-	# print(files)
 	ps = list(prefixes)
 	ps.sort()
 	for f in ps:
@@ -283,10 +238,9 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM, prefixes):
 				#create the node, add it to evens
 				node = tuple(list(root) + [sigma - sum(root)] )
 				evens.add(node)
-				# print(f"node: {node}")
+
 				#get the parents of node
 				parents = util.getParents(2, pM + dM-2, node)
-				# print(f"parents: {parents}")
 
 				#create the parent nodes, remove their root from rootsBySigma, add to newRoots
 				for parent in parents:
@@ -302,40 +256,16 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM, prefixes):
 					#add parent to be stored dict
 					# if parent not in allParents:
 					util.addToSet(parent, newParents, oldPrefixes)
-						# allParents.add(parent)
 
 			#try to load any parents of this sigma already on disk and combine with this batches
 			for p in newParents.keys():
-				# try:
-				# 	oldParents = util.load(DATA_FOLDER / f"parents/{str(p)}.dat")
-				# 	if oldParents and newParents[p].issubset(oldParents):
-				# 		continue
-				# 	oldParents.update(newParents[p])
-				# 	combParents = oldParents
-				#
-				# except OSError:
-				# 	combParents = newParents[p]
-				#
-				# util.store(combParents, DATA_FOLDER / f"parents/{str(p)}.dat")
 				util.dirStore(newParents[p], DATA_FOLDER / "parents", str(p))
 
 			newParents.clear()
 
 			for p in newRoots.keys():
 				util.dirStore(newRoots[p], DATA_FOLDER / "sideRoots", str(p))
-				# try:
-				# 	oldRoots = util.rootsLoad(DATA_FOLDER / f"sideRoots/{str(p)}.dat")
-				# 	if newRoots[p].issubset(oldRoots):
-				# 		continue
-				# 	oldRoots.update(newRoots[p])
-				# 	combRoots = oldRoots
-				#
-				# 	del oldRoots
-				#
-				# except OSError:
-				# 	combRoots = newRoots[p]
 
-				# util.rootsStore(combRoots, DATA_FOLDER / f"sideRoots/{str(p)}.dat")
 			newRoots.clear()
 			del newParents
 			del rootsBySigma[sigma]
