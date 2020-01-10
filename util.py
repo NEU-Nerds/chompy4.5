@@ -1,8 +1,9 @@
-import pickle
+import _pickle as pickle
 import os
 import shutil
 import time
 import sys
+import json
 # from objsize import get_deep_size
 
 
@@ -66,18 +67,20 @@ def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, prefixes):
 	# maxDepth = maxDepth + 1
 	# print("\ngetting parents from existing evens")
 	#sort evensL so that lowest sigma first, so we can store parents of sigmas we're done with
-	evensL = list(evens)
-	evensL.sort(key=sum)
+	# evensL = list(evens)
+	# evensL.sort(key=sum)
 
 	#dict of parents by sigma
 	parentsDict = {}
-	for even in evensL:
+	allParents = set()
+	for even in evens:
 		# print(f"even: {even}")
 		#get parents of even and add to parentsDict
-		parents = getParents(pM, pM+dM, even)
+		parents = getParents(pM, dM, even)
 		# print(f"parents: {parents}")
 		for parent in parents:
-			addToSet(parent, parentsDict, prefixes)
+			allParents.add(parent)
+
 			# if len(parent) <= maxDepth:
 			# 	pPrefix = 0
 			# else:
@@ -88,7 +91,9 @@ def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, prefixes):
 				# parentsDict[pPrefix].add(parent)
 			# else:
 				# parentsDict[pPrefix] = set([parent])
-
+	# print(f"allParents: {allParents}")
+	for parent in allParents:
+		addToSet(parent, parentsDict, prefixes)
 	# print(f"parentsDict: {parentsDict}")
 	#BATCH??
 	for p in parentsDict.keys():
@@ -104,7 +109,7 @@ def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, prefixes):
 		store(combParents, DATA_FOLDER / f"parents/{str(p)}.dat")
 
 
-	del evensL
+	# del evensL
 
 
 	del parentsDict
@@ -189,6 +194,26 @@ def emptyDir(folder):
 		except Exception as e:
 			print('Failed to delete %s. Reason: %s' % (file_path, e))
 
+def dirStore(data, folder, name):
+	if os.path.isdir(folder / name):
+		store(data, folder / name / f"{(len(os.listdir(folder / name)))}.dat")
+	else:
+		os.mkdir(folder / name)
+		store(data, folder / name / "0.dat")
+
+def multiCombineWrapper(x):
+	combineDir(x[0],x[1])
+
+def combineDir(folder, name):
+	all = set()
+	try:
+		for f in os.listdir(folder / name):
+			all.update(load(folder / name / f))
+		shutil.rmtree(folder / name)
+		store(all, folder / (name + ".dat"))
+	except:
+		print(f"failed {folder} / {name}")
+
 def load(fileName):
 	with open (fileName, 'rb') as f:
 		return pickle.load(f)
@@ -196,3 +221,26 @@ def load(fileName):
 def store(data, fileName):
 	with open(fileName, 'wb') as f:
 		pickle.dump(data, f)
+"""
+def load(fileName, isSet=True):
+	with open(fileName, "r") as file:
+		jData = file.read()
+		# +" "
+		# jData = "[" + jData[1:-1]
+		data = json.loads(jData)
+		try:
+			if isSet:
+				data = set(data)
+		except:
+			print(f"data: {data}\tfileName: {fileName}")
+
+			exit()
+		return data
+
+def store(data, fileName):
+	with open(fileName, "w") as file:
+		jData = json.dumps(list(data))
+		file.write(jData)
+		# file.write(str(data))
+		# return 1
+"""
