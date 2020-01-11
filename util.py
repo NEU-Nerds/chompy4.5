@@ -135,10 +135,16 @@ def addParent(p, parents, rBS, newRoots, prefixes, oldPrefixes, folder, MAX_ROOT
 
 	addToSet(p, parents, oldPrefixes)
 	# parents.add(p)
-	if len(parents) > MAX_ROOTS:
+	s = 0
+	for k in parents.keys():
+		s += len(parents[k])
+	if s > MAX_ROOTS:
+		# print("IM USEFULL")
 		for prefix in oldPrefixes:
-			dirStore(parents[prefix], folder, str(prefix))
-
+			try:
+				dirStore(parents[prefix], folder, str(prefix))
+			except:
+				pass
 		parents.clear()
 
 # returns the parents of a given node at the same tree depth (don't add the tails)
