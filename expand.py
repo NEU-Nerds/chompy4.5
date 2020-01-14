@@ -8,8 +8,8 @@ from multiprocessing import Pool
 
 #The maximum # of roots in one batch, eventually change to be dependent on
 #the length of roots so memory use is constant
-MAX_ROOTS = 10 ** 6
-# MAX_ROOTS = 5
+# MAX_ROOTS = 10 ** 6
+MAX_ROOTS = 10
 
 def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 	#d = depth

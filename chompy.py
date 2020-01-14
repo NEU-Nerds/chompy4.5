@@ -16,8 +16,8 @@ EVENS_FOLDER = Path(DATA_FOLDER, "./evens/")
 ROOTS_FOLDER = Path(DATA_FOLDER, "./rootBatches/")
 ROOTS_BY_SIGMA_FOLDER = Path(DATA_FOLDER, "./rootsBySigma/")
 
-MAX_M = 10
-MAX_N = 10
+MAX_M = 8
+MAX_N = 8
 
 DELTA_N = 1
 DELTA_M = 1
@@ -64,7 +64,7 @@ def main():
 			allEvens.update(eX)
 
 		print(f"{m}X{n} total evens: {len(allEvens)}\t in {str(endT-sT)}s")
-		# print(str(m)+"X"+str(n)+" evens: " + str(allEvens))
+		print(str(m)+"X"+str(n)+" evens: " + str(allEvens))
 		# print(f"size of all evens: {sys.getsizeof(allEvens)}")
 		# print(f"Deep allEvens objSize: {get_deep_size(allEvens)}")
 		# print()
