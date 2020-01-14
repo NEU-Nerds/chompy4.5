@@ -9,7 +9,7 @@ from multiprocessing import Pool
 #The maximum # of roots in one batch, eventually change to be dependent on
 #the length of roots so memory use is constant
 MAX_ROOTS = 10 ** 6
-MAX_ROOTS = 10
+# MAX_ROOTS = 5
 
 def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 	#d = depth
@@ -58,6 +58,7 @@ def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 
 			try:
 				prevParents = util.load(DATA_FOLDER / f"parents/{prefix}.dat")
+				# print(f"prevParents: {prevParents}")
 				for parent in prevParents:
 					pRoot = parent[:-1]
 					try:
@@ -81,7 +82,7 @@ def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 				#if this sigma is empty why bother
 				if sigma not in keys:
 					continue
-
+				# print(f"sigma: {sigma}")
 				# newParents = {}
 
 				#each node here will be even
@@ -89,9 +90,10 @@ def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 					#create the node, add it to evens
 					node = tuple(list(root) + [sigma - sum(root)] )
 					evens.add(node)
+					# print(f"node: {node}")
 
 					#get the parents of node
-					start = root[0]
+					# start = root[0]
 					util.getParents(2, m+dM-2, node, workingParents, rootsBySigma, newRoots, prefixes, oldPrefixes, DATA_FOLDER / "parents", MAX_ROOTS)
 
 					#create the parent nodes, remove their root from rootsBySigma, add to newRoots
@@ -201,6 +203,7 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM, prefixes):
 			roots = util.rootsLoad(DATA_FOLDER / f"sideOldRoots/{f}.dat")
 		except:
 			continue
+		# print(f"roots: {roots}")
 
 		if len(roots) == 0:
 			continue
@@ -208,14 +211,17 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM, prefixes):
 		#RBS is the roots of the new nodes indexed by the sigma of the node
 		#Note a root = node[:-1] (I love how this looks like a face btw)
 		rootsBySigma = util.genRBS(roots)
-
+		# print(f"RBS: {rootsBySigma}")
 		n1 = list(roots)[0]
 		prefix = util.getPrefix(n1, oldPrefixes)
 
+		# if f == (6, 4):
+		# 	print("NUM FILES: "+str(len(os.listdir(DATA_FOLDER / f"parents/{f}" ))))
 		util.combineDir(DATA_FOLDER / "parents", str(f))
 		#try loading previosu parents and
 		try:
 			prevParents = util.load(DATA_FOLDER / f"parents/{prefix}.dat")
+			# print(f"prevParents: {prevParents}")
 			for parent in prevParents:
 				pRoot = parent[:-1]
 				try:
@@ -238,7 +244,7 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM, prefixes):
 			#if this sigma is empty why bother
 			if sigma not in keys:
 				continue
-
+			# print(f"Sigma: {sigma}")
 			# newParents = {}
 			# allParents = set()
 
@@ -247,6 +253,7 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM, prefixes):
 				#create the node, add it to evens
 				node = tuple(list(root) + [sigma - sum(root)] )
 				evens.add(node)
+				# print(f"node: {node}")
 
 				#get the parents of node
 				# parents = util.getParents(2, pM + dM-2, node)
@@ -272,6 +279,8 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM, prefixes):
 			# 	util.dirStore(newParents[p], DATA_FOLDER / "parents", str(p))
 			#
 			# newParents.clear()
+			# if newRoots != {}:
+			# 	print(f"newRoots: {newRoots}\n\tprefixes: {prefixes}")
 
 			for p in newRoots.keys():
 				util.dirStore(newRoots[p], DATA_FOLDER / "sideRoots", str(p))
@@ -281,11 +290,13 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM, prefixes):
 			del rootsBySigma[sigma]
 
 		del rootsBySigma
-		for pfix in oldPrefixes:
+		for pfix in workingParents.keys():
 			try:
 				util.dirStore(workingParents[pfix], DATA_FOLDER / "parents", str(pfix))
-			except:
+			except Exception as e:
+				# print(f"error: {e}")
 				pass
+
 
 	for p in prefixes:
 		util.combineDir(DATA_FOLDER / "sideRoots", str(p))

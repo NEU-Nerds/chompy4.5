@@ -11,14 +11,15 @@ import json
 #all prefixes will be tuples
 def getPrefix(node, prefixes):
 	index = 0
-	while index < len(node):
+	while index < len(node)+1:
 		if node[:index] in prefixes:
 			return node[:index]
 		index += 1
 	return (node[0],)
 
 #only split newRoots
-def splitPrefix(prefix, s, prefixes):
+def splitPrefix(prefix, s, prefixes, maxNodes):
+	# print(f"Splititng pre-prefixes: {prefixes}")
 	for t in range(1, prefix[-1]+1):
 		prefixes.add(prefix + (t,))
 	prefixes.remove(prefix)
@@ -27,8 +28,15 @@ def splitPrefix(prefix, s, prefixes):
 	del s[prefix]
 
 	for node in nodes:
-		addToSet(node, s, prefixes)
-
+		addToSet(node, s, prefixes)#, maxNodes)
+	# print(f"Splititng post-prefixes: {prefixes}")
+	noSplit = True
+	while noSplit:
+		for p in prefixes:
+			if len(s[p]) > maxNodes:
+				# print("HELLO")
+				noSplit = False
+				splitPrefix(p, s, prefixes, maxNodes)
 	#handle parents and nodes files???
 
 
@@ -41,7 +49,7 @@ def addToSet(node, s, prefixes, maxNodes = -1):
 		s[p] = set([node])
 
 	if maxNodes > 0 and len(s[p]) > maxNodes:
-		splitPrefix(p, s, prefixes)
+		splitPrefix(p, s, prefixes, maxNodes)
 
 
 #RBS is the roots of the new nodes indexed by the sigma of the node
@@ -74,11 +82,13 @@ def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, prefixes, MAX
 	# parentsDict = {}
 	# allParents = set()
 	workingParents = {}
+	# workingRoots = {}
 	for even in evens:
 		# print(f"even: {even}")
 		#get parents of even and add to parentsDict
 		# parents = getParents(pM, dM, even)
-		getParents(pM, dM, even, workingParents, {}, set(), prefixes, prefixes, DATA_FOLDER / "parents", MAX_ROOTS)
+		getParents(pM, dM, even, workingParents, {}, {}, prefixes, prefixes, DATA_FOLDER / "parents", MAX_ROOTS, True)
+
 		# print(f"parents: {parents}")
 		# for parent in parents:
 		# 	allParents.add(parent)
@@ -93,6 +103,11 @@ def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, prefixes, MAX
 				# parentsDict[pPrefix].add(parent)
 			# else:
 				# parentsDict[pPrefix] = set([parent])
+	# for pfix in workingParents.keys():
+	# 	try:
+	# 		util.dirStore(workingParents[pfix], DATA_FOLDER / "parents", str(pfix))
+	# 	except Exception as e:
+	# 		print(f"error: {e}")
 	# print(f"allParents: {allParents}")
 	# for parent in allParents:
 	# 	addToSet(parent, parentsDict, prefixes)
@@ -103,9 +118,12 @@ def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, prefixes, MAX
 			dirStore(workingParents[pfix], DATA_FOLDER / "parents", str(pfix))
 		except:
 			pass
+	# for p in workingRoots.keys():
+	# 	print("Storing: "+str(p))
+	# 	dirStore(workingRoots[p], DATA_FOLDER / "roots", str(p))
 
-	for p in prefixes:
-		combineDir(DATA_FOLDER / "parents", str(p), True)
+	# for p in prefixes:
+	# 	combineDir(DATA_FOLDER / "parents", str(p), True)
 	# for p in parentsDict.keys():
 	# 	try:
 	# 		oldParents = load(DATA_FOLDER / f"parents/{str(p)}.dat")
@@ -125,10 +143,14 @@ def genParentsFromExistingEvens(DATA_FOLDER, evens, depth, pM, dM, prefixes, MAX
 	# del parentsDict
 	# print("finished parents from evens\n")
 
-def addParent(p, parents, rBS, newRoots, prefixes, oldPrefixes, folder, MAX_ROOTS):
+def addParent(p, parents, rBS, newRoots, prefixes, oldPrefixes, folder, MAX_ROOTS, e="FROM ELSEWHERE", toPrint=False):
 	pRoot = p[:-1]
+	# if p == (6, 4, 3, 2, 1):
+	# if toPrint:
+	# print(f"PARENT: {p} from node {e}" )
 	try:
 		rBS[sum(p)].remove(pRoot)
+		# print(f"adding new root: {p}")
 		addToSet(p, newRoots, prefixes, MAX_ROOTS)
 	except:
 		pass
@@ -149,7 +171,7 @@ def addParent(p, parents, rBS, newRoots, prefixes, oldPrefixes, folder, MAX_ROOT
 
 # returns the parents of a given node at the same tree depth (don't add the tails)
 # pass in previous width, change in width, and the node
-def getParents (pM, dM, evenNode, parents, rBS, newRoots, prefixes, oldPrefixes, folder, MAX_ROOTS):
+def getParents (pM, dM, evenNode, parents, rBS, newRoots, prefixes, oldPrefixes, folder, MAX_ROOTS, toPrint=False):
 	# parents = {} # stores all generated parents of the even node, eventually returned
 	lastAdded = set() # used to store things between depths for layer equivalence stuff
 	layerEq = layerEquivalence(evenNode)
@@ -194,7 +216,7 @@ def getParents (pM, dM, evenNode, parents, rBS, newRoots, prefixes, oldPrefixes,
 			lastAdded.update(toAdd)
 		else:
 			for p in lastAdded:
-				addParent(p, parents, rBS, newRoots, prefixes, oldPrefixes, folder, MAX_ROOTS)
+				addParent(p, parents, rBS, newRoots, prefixes, oldPrefixes, folder, MAX_ROOTS, evenNode, toPrint)
 			# parents.update(lastAdded) # add the parents from last added to the list of parents
 			lastAdded = set() # reset lastAdded because the layers are different
 
@@ -205,10 +227,16 @@ def getParents (pM, dM, evenNode, parents, rBS, newRoots, prefixes, oldPrefixes,
 			p[d] = i #change the value at current depth
 			lastAdded.add(tuple(p))
 		for p in lastAdded:
-			addParent(p, parents, rBS, newRoots, prefixes, oldPrefixes, folder, MAX_ROOTS)
+			addParent(p, parents, rBS, newRoots, prefixes, oldPrefixes, folder, MAX_ROOTS, evenNode, toPrint)
 		# parents.update(lastAdded)
 
 	# return parents
+	# for prefix in parents.keys():
+	# 	try:
+	# 		dirStore(parents[prefix], folder, str(prefix))
+	# 	except Exception as e:
+	# 		print(f"error: {e}")
+	# parents.clear()
 
 
 # pass in a path representing a node.
