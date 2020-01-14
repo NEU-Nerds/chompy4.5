@@ -17,5 +17,11 @@ missing.sort()
 print(f"extra: {extra}")
 print(f"missing: {missing}")
 
+from settings import *
+import settings
+print(MAX_M)
+settings.MAX_M = 5
+print(MAX_M)
+print(settings.MAX_M)
 # correct.sort()
 # print(correct)

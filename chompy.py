@@ -4,51 +4,42 @@ from pathlib import Path
 import time
 import expand
 import sys
+# from settings import *
+import settings
+
 # from objsize import get_deep_size
 
-THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
-#THIS_FOLDER = "D:/Mass Storage/Math/chompy"
-# THIS_FOLDER = "/Users/tymarking/Documents/chomp/chompy4"
-# print(THIS_FOLDER)
-THIS_FOLDER = Path(THIS_FOLDER)
-DATA_FOLDER = Path(THIS_FOLDER, "./data/epoc3/")
-EVENS_FOLDER = Path(DATA_FOLDER, "./evens/")
-ROOTS_FOLDER = Path(DATA_FOLDER, "./rootBatches/")
-ROOTS_BY_SIGMA_FOLDER = Path(DATA_FOLDER, "./rootsBySigma/")
 
-MAX_M = 7
-MAX_N = 7
 
-DELTA_N = 1
-DELTA_M = 1
+
 
 def main():
 	#previous mxn completed
-	m, n = util.load(DATA_FOLDER / "mXn.dat")
-	prefixes = util.load(DATA_FOLDER / "prefixes.dat")
+	m, n = util.load(settings.DATA_FOLDER / "mXn.dat")
+	settings.prefixes = util.load(settings.DATA_FOLDER / "prefixes.dat")
 	startM = m
 	startN = n
 
 	firstST = time.time()
 	#m and n are prev m and n expanded to
-	while m < MAX_M or n < MAX_N:
+	while m < settings.MAX_M or n < settings.MAX_N:
 		#dM and dN are how much to expand m and n by respectively
-		dM = min(DELTA_M, MAX_M - m)
-		dN = min(DELTA_N, MAX_N - n)
+		dM = min(settings.DELTA_M, settings.MAX_M - m)
+		dN = min(settings.DELTA_N, settings.MAX_N - n)
 
 		print(f"\nExpanding from {m}X{n} to {m+dM}X{n+dN}")
 
 		sT = time.time()
 
 		#expand sideways by dM
-		expand.expandSide(DATA_FOLDER, m, n, dM, dN, prefixes)
+		expand.expandSide(m, n, dM, dN)
 		sideTime = time.time()
 		print(f"Side time: {sideTime - sT}s")
-		util.emptyDir(DATA_FOLDER / "parents")
-		util.emptyDir(DATA_FOLDER / "oldRoots")
+		util.emptyDir(settings.DATA_FOLDER / "parents")
+		util.emptyDir(settings.DATA_FOLDER / "oldRoots")
 
 		#expand down by dN
-		expand.expandDown(DATA_FOLDER, m, n, dM, dN, prefixes)
+		expand.expandDown(m, n, dM, dN)
 		print(f"Down time: {time.time() - sideTime}s")
 
 		endT = time.time()
@@ -60,18 +51,18 @@ def main():
 		# print("genning all evens")
 		allEvens = set()
 		for x in range(1,n+1):
-			eX = util.load(EVENS_FOLDER / f"evens{x}.dat")
+			eX = util.load(settings.EVENS_FOLDER / f"evens{x}.dat")
 			allEvens.update(eX)
 
 		print(f"{m}X{n} total evens: {len(allEvens)}\t in {str(endT-sT)}s")
-		print(str(m)+"X"+str(n)+" evens: " + str(allEvens))
+		# print(str(m)+"X"+str(n)+" evens: " + str(allEvens))
 		# print(f"size of all evens: {sys.getsizeof(allEvens)}")
 		# print(f"Deep allEvens objSize: {get_deep_size(allEvens)}")
 		# print()
 
 		#store the m and n completed, evens are stored in side and down expand
-		util.store((m,n), DATA_FOLDER / "mXn.dat")
-		util.store(prefixes, DATA_FOLDER / "prefixes.dat")
+		util.store((m,n), settings.DATA_FOLDER / "mXn.dat")
+		util.store(settings.prefixes, settings.DATA_FOLDER / "prefixes.dat")
 
 	print(f"\n\nTotal run time for {startM}X{startN} to {m}X{n}: {time.time() - firstST}s ")
 
@@ -79,48 +70,50 @@ def main():
 def seed():
 	#make sure all folders exist
 	try:
-		util.emptyDir(DATA_FOLDER)
+		util.emptyDir(settings.DATA_FOLDER)
 	except:
 		pass
 	try:
-		os.mkdir(Path(THIS_FOLDER, "./data"))
+		os.mkdir(Path(settings.THIS_FOLDER, "./data"))
 	except:
 		pass
 	try:
-		os.mkdir(DATA_FOLDER)
+		os.mkdir(settings.DATA_FOLDER)
 	except:
 		pass
 	try:
-		os.mkdir(EVENS_FOLDER)
+		os.mkdir(settings.EVENS_FOLDER)
 	except:
 		pass
 	try:
-		os.mkdir(DATA_FOLDER / "roots")
+		os.mkdir(settings.DATA_FOLDER / "roots")
 	except:
 		pass
 	try:
-		os.mkdir(DATA_FOLDER / "oldRoots")
+		os.mkdir(settings.DATA_FOLDER / "oldRoots")
 	except:
 		pass
 	try:
-		os.mkdir(DATA_FOLDER / "parents")
+		os.mkdir(settings.DATA_FOLDER / "parents")
 	except:
 		pass
 	try:
-		os.mkdir(DATA_FOLDER / "sideOldRoots")
+		os.mkdir(settings.DATA_FOLDER / "sideOldRoots")
 	except:
 		pass
 	try:
-		os.mkdir(DATA_FOLDER / "sideRoots")
+		os.mkdir(settings.DATA_FOLDER / "sideRoots")
 	except:
 		pass
 
-	util.store((1,1), DATA_FOLDER / "mXn.dat")
+	util.store((1,1), settings.DATA_FOLDER / "mXn.dat")
 	# util.store(set(), DATA_FOLDER / "roots/rootsBatch0.dat")
-	util.store(set([(1,)]), EVENS_FOLDER / "evens1.dat")
+	util.store(set([(1,)]), settings.EVENS_FOLDER / "evens1.dat")
 	prefixes = set()
-	util.store(prefixes, DATA_FOLDER / "prefixes.dat")
+	util.store(prefixes, settings.DATA_FOLDER / "prefixes.dat")
 
 if __name__ == '__main__':
+	settings.init()
+	print(f"DATA_FOLDER: {settings.DATA_FOLDER}")
 	seed()
 	main()
