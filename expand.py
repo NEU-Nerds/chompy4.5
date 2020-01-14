@@ -186,6 +186,7 @@ def expandMain(depth, m, dM, evens = set()):
 		# print(f"file: {f}")
 		newRoots = {}
 		workingParents = {}
+		util.combineDir(settings.currRootsDir, str(f), True)
 		try:
 			roots = util.load(f"{settings.currOldRootsDir}/{f}.dat")
 		except Exception as e:
@@ -205,7 +206,7 @@ def expandMain(depth, m, dM, evens = set()):
 		# n1 = list(roots)[0]
 		# prefix = util.getPrefix(n1, oldPrefixes)
 
-		util.combineDir(settings.currRootsDir, str(f), True)
+
 		util.combineDir(settings.PARENTS_FOLDER, str(f))
 		# if f == (6, 4):
 			# print("NUM FILES: "+str(len(os.listdir(DATA_FOLDER / f"parents/{f}" ))))
@@ -217,12 +218,18 @@ def expandMain(depth, m, dM, evens = set()):
 			for parent in prevParents:
 				pRoot = parent[:-1]
 				try:
+					# print("trying")
 					rootsBySigma[sum(parent)].remove(pRoot)
+					# print("2")
 					util.addToSet(parent, newRoots, root=True)
-				except:
+				except Exception as e:
+					# print
+					# print(f"error rbs: {e}")
 					pass
 
+
 		except OSError as e:
+			# print(f"OSerror: {e}")
 			pass
 			# print(f"error: {e}")
 

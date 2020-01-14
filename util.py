@@ -24,33 +24,45 @@ def getPrefix(node, root):
 
 #only split newRoots
 def splitPrefix(prefix, s):
-	# print(f"Splititng pre-prefixes: {prefixes}")
+	# print(f"Splititng pre: {s}")
+	# print(f"Splititng preP: {settings.prefixes}")
 	for t in range(1, prefix[-1]+1):
 		settings.prefixes.add(prefix + (t,))
 	settings.prefixes.remove(prefix)
 
 	nodes = s[prefix]
+	# print(f"nodes: {nodes}")
 	del s[prefix]
-
+	# print(f"Splititng mid: {s}")
 	for node in nodes:
-		addToSet(node, s)#, maxNodes)
+		addToSet(node, s, True)#, maxNodes)
 
-	# print(f"Splititng post-prefixes: {prefixes}")
-	#needed?
-	noSplit = True
-	while noSplit:
-		noSplit = False
-		for p in s.keys():
-
-			if len(s[p]) > settings.MAX_ROOTS:
-				print("HELLO")
-				noSplit = True
-				splitPrefix(p, s)
+	# print(f"Splititng post: {s}")
+	# print(f"Splititng postP: {settings.prefixes}")
+	# needed?
+	# noSplit = True
+	# while noSplit:
+	# 	noSplit = False
+	# 	for p in s.keys():
+	#
+	# 		if len(s[p]) > settings.MAX_ROOTS:
+	#
+	# 			print("HELLO")
+	# 			noSplit = True
+	# 			splitPrefix(p, s)
+	# print(f"mid s: {s}")
 	#handle root files???
 
 	#for file in oldPrefix dir, load nodes and store into current dir
-	for f in os.listdir(settings.currRootsDir):
+	try:
+		for f in os.listdir(settings.currRootsDir / str(prefix)):
+			roots = load(settings.currRootsDir / f"{f}.dat")
+			for root in roots:
+				addToSet(root, s, True)
+	except Exception as e:
 		pass
+	# 	print(f"splitPrefix error: {e}")
+	# print(f"post s: {s}")
 
 
 def addToSet(node, s, root=False):
@@ -107,7 +119,8 @@ def addParent(p, parents, rBS, newRoots):
 		rBS[sum(p)].remove(pRoot)
 		# print(f"adding new root: {p}")
 		addToSet(p, newRoots, root=True)
-	except:
+	except Exception as e:
+		# print(f"addParent error: {e}")
 		pass
 
 	addToSet(p, parents)
