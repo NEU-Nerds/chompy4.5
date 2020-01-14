@@ -43,6 +43,7 @@ def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 			except FileNotFoundError:
 				# print(f"couldn't find {f}.dat")
 				continue
+			# print(f"roots: {roots}")
 
 			prefix = util.getPrefix(list(roots)[0], oldPrefixes)
 
@@ -168,7 +169,7 @@ def expandSide (DATA_FOLDER, m, n, dM, dN, prefixes):
 	# print("finished expandSide")
 
 def expandSideLayer(DATA_FOLDER, depth, pM, dM, prefixes):
-	# print("ExpandingSideLayer d = " +str(depth))
+	print("ExpandingSideLayer d = " +str(depth))
 
 	#clean out unneaded data
 	util.emptyDir(DATA_FOLDER / "parents")
@@ -196,14 +197,14 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM, prefixes):
 	ps = list(prefixes)
 	ps.sort()
 	for f in ps:
-		# print(f"file: {f}")
+		print(f"file: {f}")
 		newRoots = {}
 		workingParents = {}
 		try:
 			roots = util.rootsLoad(DATA_FOLDER / f"sideOldRoots/{f}.dat")
 		except:
 			continue
-		# print(f"roots: {roots}")
+		print(f"roots: {roots}")
 
 		if len(roots) == 0:
 			continue
@@ -279,8 +280,8 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM, prefixes):
 			# 	util.dirStore(newParents[p], DATA_FOLDER / "parents", str(p))
 			#
 			# newParents.clear()
-			# if newRoots != {}:
-			# 	print(f"newRoots: {newRoots}\n\tprefixes: {prefixes}")
+			if newRoots != {}:
+				print(f"newRoots: {newRoots}")
 
 			for p in newRoots.keys():
 				util.dirStore(newRoots[p], DATA_FOLDER / "sideRoots", str(p))
