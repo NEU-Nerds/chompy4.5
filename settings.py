@@ -52,8 +52,8 @@ def init():
     PARENTS_FOLDER = Path(DATA_FOLDER, "./parents/")
     ROOTS_BY_SIGMA_FOLDER = Path(DATA_FOLDER, "./rootsBySigma/")
 
-    MAX_M = 10
-    MAX_N = 10
+    MAX_M = 5
+    MAX_N = 5
 
     #currently only do 1
     DELTA_N = 1
@@ -62,4 +62,4 @@ def init():
     #The maximum # of roots in one batch, eventually change to be dependent on
     #the length of roots so memory use is constant
     MAX_ROOTS = 10 ** 6
-    # MAX_ROOTS = 10
+    MAX_ROOTS = 10

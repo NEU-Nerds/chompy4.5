@@ -55,7 +55,7 @@ def main():
 			allEvens.update(eX)
 
 		print(f"{m}X{n} total evens: {len(allEvens)}\t in {str(endT-sT)}s")
-		# print(str(m)+"X"+str(n)+" evens: " + str(allEvens))
+		print(str(m)+"X"+str(n)+" evens: " + str(allEvens))
 		# print(f"size of all evens: {sys.getsizeof(allEvens)}")
 		# print(f"Deep allEvens objSize: {get_deep_size(allEvens)}")
 		# print()
