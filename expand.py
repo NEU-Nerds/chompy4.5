@@ -165,6 +165,7 @@ def expandSideLayer(depth, m, dM):
 
 
 	# print(f"evens: {evens}")
+	settings.staticPrefixes = settings.prefixes.copy()
 	util.genParentsFromExistingEvens(evens, depth, m, dM)
 
 	expandMain(depth, m, dM, evens)

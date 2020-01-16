@@ -113,6 +113,8 @@ def genParentsFromExistingEvens(evens, depth, pM, dM):
 
 
 def addParent(p, parents, rBS, newRoots):
+	# if p == (6, 1, 1, 1, 1):
+	# 	print("(6, 1, 1, 1, 1) was a parent")
 	pRoot = p[:-1]
 	# print(f"PARENT: {p} from node {e}" )
 	try:
@@ -129,10 +131,12 @@ def addParent(p, parents, rBS, newRoots):
 	for k in parents.keys():
 		s += len(parents[k])
 	if s > settings.MAX_ROOTS:
-		for prefix in settings.staticPrefixes:
+		# print(f"storing parents from addParent: {parents}")
+		for prefix in parents.keys():
 			try:
 				dirStore(parents[prefix], settings.PARENTS_FOLDER, str(prefix))
-			except:
+			except Exception as e:
+				# print(f"in addParent could not store bc: {e}")
 				pass
 		parents.clear()
 
