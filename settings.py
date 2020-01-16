@@ -59,8 +59,8 @@ def init():
     PARENTS_FOLDER = Path(DATA_FOLDER, "./parents/")
     ROOTS_BY_SIGMA_FOLDER = Path(DATA_FOLDER, "./rootsBySigma/")
 
-    MAX_M = 16
-    MAX_N = 16
+    MAX_M = 8
+    MAX_N = 8
 
     #currently only do 1
     DELTA_N = 1
