@@ -27,92 +27,7 @@ def expandDown(m, n, dM, dN):
 		settings.currOldRootsDir = settings.DATA_FOLDER / "oldRoots"
 
 		expandMain(d, m, dM)
-		# ps = list(prefixes)
-		# ps.sort()
-		# for f in ps:
-		# 	util.combineDir(DATA_FOLDER / "parents", str(f))
-		# 	# print(f"file: {f}")
-		# 	try:
-		# 		roots = util.rootsLoad(DATA_FOLDER / f"oldRoots/{f}.dat")
-		# 	except FileNotFoundError:
-		# 		# print(f"couldn't find {f}.dat")
-		# 		continue
-		# 	# print(f"roots: {roots}")
-		#
-		# 	prefix = util.getPrefix(list(roots)[0], oldPrefixes)
-		#
-		# 	#{tuple(prefix):set(roots)}
-		# 	newRoots = {}
-		# 	workingParents = {}
-		#
-		# 	#RBS is the roots of the new nodes indexed by the sigma of the node
-		# 	#Note a root = node[:-1] (I love how this looks like a face btw)
-		# 	rootsBySigma = util.genRBS(roots)
-		# 	# print(f"preRBS: {rootsBySigma}")
-		# 	#try loading previosu parents
-		#
-		# 	try:
-		# 		prevParents = util.load(DATA_FOLDER / f"parents/{prefix}.dat")
-		# 		# print(f"prevParents: {prevParents}")
-		# 		for parent in prevParents:
-		# 			pRoot = parent[:-1]
-		# 			try:
-		# 				rootsBySigma[sum(parent)].remove(pRoot)
-		# 				util.addToSet(parent, newRoots, prefixes, MAX_ROOTS)
-		# 			except:
-		# 				pass
-		# 	except OSError:
-		# 		pass
-		#
-		# 	# print(f"postRBS: {rootsBySigma}")
-		#
-		# 	keys = rootsBySigma.keys()
-		#
-		# 	#get min and max sigma of nodes in this batch
-		# 	minSigma = min(keys)
-		# 	maxSigma = max(keys)
-		#
-		# 	#go through each sigma starting from smallest
-		# 	for sigma in range(minSigma, maxSigma + 1):
-		# 		#if this sigma is empty why bother
-		# 		if sigma not in keys:
-		# 			continue
-		# 		# print(f"sigma: {sigma}")
-		# 		# newParents = {}
-		#
-		# 		#each node here will be even
-		# 		for root in rootsBySigma[sigma]:
-		# 			#create the node, add it to evens
-		# 			node = tuple(list(root) + [sigma - sum(root)] )
-		# 			evens.add(node)
-		# 			# print(f"node: {node}")
-		#
-		# 			#get the parents of node
-		# 			# start = root[0]
-		# 			util.getParents(2, m+dM-2, node, workingParents, rootsBySigma, newRoots, prefixes, oldPrefixes, DATA_FOLDER / "parents", MAX_ROOTS)
-		#
-		#
-		# 		for p in newRoots.keys():
-		# 			util.dirStore(newRoots[p], DATA_FOLDER / "roots", str(p))
-		#
-		# 		newRoots.clear()
-		# 		# del newParents
-		# 		del rootsBySigma[sigma]
-		#
-		# 	del rootsBySigma
-		# 	for pfix in oldPrefixes:
-		# 		try:
-		# 			util.dirStore(workingParents[pfix], DATA_FOLDER / "parents", str(pfix))
-		# 		except:
-		# 			pass
-		#
-		# for p in prefixes:
-		# 	util.combineDir(DATA_FOLDER / "roots", str(p))
-		#
-		# util.store(evens, DATA_FOLDER / f"evens/evens{d}.dat")
-		# util.store(prefixes, DATA_FOLDER / "prefixes.dat")
-		# del evens
-	# print("finished all down expands")
+		
 
 def expandSide (m, n, dM, dN):
 	# print("\nExpanding Side")
@@ -181,7 +96,7 @@ def expandMain(depth, m, dM, evens = set()):
 	#static
 	settings.staticPrefixes = settings.prefixes.copy()
 
-	ps = list(settings.prefixes)
+	ps = list(settings.staticPrefixes)
 	ps.sort()
 	for f in ps:
 		# print(f"file: {f}")

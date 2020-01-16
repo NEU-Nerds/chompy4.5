@@ -55,13 +55,20 @@ def splitPrefix(prefix, s):
 
 	#for file in oldPrefix dir, load nodes and store into current dir
 	try:
-		for f in os.listdir(settings.currRootsDir / str(prefix)):
-			roots = load(settings.currRootsDir / f"{f}.dat")
-			for root in roots:
-				addToSet(root, s, True)
+		# print(os.listdir(settings.currRootsDir))
+		for f in os.listdir(settings.currRootsDir / f"{prefix}/"):
+			try:
+				roots = load(settings.currRootsDir / f"{prefix}/{f}")
+				# print(f"loaded roots: {roots}")
+				for root in roots:
+					addToSet(root, s, True)
+			except OSError as e:
+				# print(f"could not load {prefix} with e: {e}")
+				pass
 	except Exception as e:
+		# print(f"splitPrefix error: {e}")
 		pass
-	# 	print(f"splitPrefix error: {e}")
+
 	# print(f"post s: {s}")
 
 
@@ -134,6 +141,7 @@ def addParent(p, parents, rBS, newRoots):
 		# print(f"storing parents from addParent: {parents}")
 		for prefix in parents.keys():
 			try:
+
 				dirStore(parents[prefix], settings.PARENTS_FOLDER, str(prefix))
 			except Exception as e:
 				# print(f"in addParent could not store bc: {e}")
