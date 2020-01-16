@@ -26,7 +26,7 @@ def expandDown(m, n, dM, dN):
 		settings.currRootsDir = settings.DATA_FOLDER / "roots"
 		settings.currOldRootsDir = settings.DATA_FOLDER / "oldRoots"
 
-		expandMain(d, m, dM)
+		expandMain(d, m, dM, False)
 
 
 def expandSide (m, n, dM, dN):
@@ -84,13 +84,13 @@ def expandSideLayer(depth, m, dM):
 
 	util.genParentsFromExistingEvens(evens, depth, m, dM)
 
-	expandMain(depth, m, dM, evens)
+	expandMain(depth, m, dM, True, evens)
 	#Yes the code below is nearly the same from expand down except the file paths
 	#I'll turn it into a function later - Ty. Well we'll see if I do
 
 
 
-def expandMain(depth, m, dM, evens = set()):
+def expandMain(depth, m, dM, isSide, evens = set()):
 	# print("expanding main")
 
 
@@ -175,7 +175,15 @@ def expandMain(depth, m, dM, evens = set()):
 
 				#get the parents of node
 				# parents = util.getParents(2, pM + dM-2, node)
-				util.getParents(2, m+dM-2, node, workingParents, rootsBySigma, newRoots)
+				parentS = node[-1]
+				parentD = m+dM - node[-1]
+
+				# if (isSide):
+				# 	parentS = node[-1]
+				# 	parentD = m+dM-node[-1]
+
+				util.getParents(parentS, parentD, node, workingParents, rootsBySigma, newRoots)
+				# util.getParents(parentS, m+dM, node, workingParents, rootsBySigma, newRoots)
 
 			# if newRoots != {}:
 			# 	print(f"newRoots: {newRoots}")

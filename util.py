@@ -109,7 +109,8 @@ def genParentsFromExistingEvens(evens, depth, pM, dM):
 	settings.currParentsNum = 0
 
 	for even in evens:
-		getParents(pM, dM, even, workingParents, {}, {})
+		getParents(even[-1], pM+dM-even[-1], even, workingParents, {}, {})
+		# getParents(pM, dM, even, workingParents, {}, {})
 
 	for pfix in workingParents.keys():
 		try:
@@ -170,7 +171,8 @@ def getParents (pM, dM, evenNode, parents, rBS, newRoots):
 			# if depth is not 0:
 				# stop at the max of (start or int at previous depth +1)
 
-		start = max(pM, evenNode[d] + 1)
+		start = max(pM + 1, evenNode[d] + 1)
+		# stop = dM + 1
 		stop = pM + dM + 1
 		if d != 0:
 			# start = min(evenNode[d] + 1, pM + 1)
@@ -222,6 +224,74 @@ def getParents (pM, dM, evenNode, parents, rBS, newRoots):
 	# 		print(f"error: {e}")
 	# parents.clear()
 
+
+#mostly identical to getParents, but without all the extra stuff for batching so it can be tested easily
+def getParentsTest (pM, newM, evenNode):
+	parents = set() # stores all generated parents of the even node, eventually returned
+	lastAdded = set() # used to store things between depths for layer equivalence stuff
+	layerEq = layerEquivalence(evenNode)
+
+	# go through each index of the node
+	for d in range(len(evenNode)):
+		# finding the range of numbers that can be parents
+			# set "start" and "stop" depending on the depth
+				# start at the max of 1 greater than the current width or 1 more than the int at current depth
+			# if depth is 0:
+				# stop at the next width + 1
+			# if depth is not 0:
+				# stop at the max of (start or int at previous depth +1)
+
+		start = max(pM + 1, evenNode[d] + 1)
+		stop = newM + 1
+		if d != 0:
+			# start = min(evenNode[d] + 1, pM + 1)
+			stop = max(evenNode[d-1] + 1, start)
+
+		# the value of the parent at any depth must be greater than or equal to the value of the child at any depth
+		 	# this is why we start is set to be evenNode[d] + 1.
+			# we add in the max of that and previous width so we don't have to
+				# generate the parents of the even board that have already been generated
+		# the upper limit is different depending on whether depth is 0 or not 0.
+			# if depth is 0, the upper limit is simply the new width (+ 1 so it's inclusive)
+			# if depth is not 0, the upper limit should be the previous depth's value (+1 for inclusive)
+				# however if that is less than the value of start, we don't want to do anything at this depth
+				# so we use the max() with start. eg: "for i in range(foo, foo)" does nothing
+
+		# see if the last layer is the same as this layer
+		if layerEq[d]:
+			toAdd = set() #1 new parents to be added to the overall list later
+			for parent in lastAdded: # go through all of the parents from the previous layer(s)
+				# add new parents based off of the current parent for every possible value
+				# the new parents can be from the value of the current depth to the value of previous depth
+				for i in range(parent[d], parent[d-1] + 1):
+					p = list(parent[:])
+					p[d] = i
+
+					toAdd.add(tuple(p))
+			lastAdded.update(toAdd)
+		else:
+			# for p in lastAdded:
+				# addParent(p, parents, rBS, newRoots, prefixes, oldPrefixes, folder, MAX_ROOTS, evenNode, toPrint)
+			parents.update(lastAdded) # add the parents from last added to the list of parents
+			lastAdded = set() # reset lastAdded because the layers are different
+
+		# setting the nodes in the range of previously generated numbers as parents
+		for i in range(start, stop):
+			# casting to list from tuple so you can change the value at the current depth
+			p = list(evenNode[:]) # copy the current node
+			p[d] = i #change the value at current depth
+			lastAdded.add(tuple(p))
+		# for p in lastAdded:
+			# addParent(p, parents, rBS, newRoots, prefixes, oldPrefixes, folder, MAX_ROOTS, evenNode, toPrint)
+		parents.update(lastAdded)
+
+	return parents
+	# for prefix in parents.keys():
+	# 	try:
+	# 		dirStore(parents[prefix], folder, str(prefix))
+	# 	except Exception as e:
+	# 		print(f"error: {e}")
+	# parents.clear())
 
 # pass in a path representing a node.
 # returns a list of bools with the same length

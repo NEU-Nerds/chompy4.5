@@ -9,10 +9,6 @@ import settings
 
 # from objsize import get_deep_size
 
-
-
-
-
 def main():
 	#previous mxn completed
 	m, n = util.load(settings.DATA_FOLDER / "mXn.dat")
