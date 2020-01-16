@@ -95,7 +95,11 @@ def expandDown(DATA_FOLDER, m, n, dM, dN, prefixes):
 
 					#get the parents of node
 					# start = root[0]
-					util.getParents(2, m+dM-2, node, workingParents, rootsBySigma, newRoots, prefixes, oldPrefixes, DATA_FOLDER / "parents", MAX_ROOTS)
+					# util.getParents(2, m+dM-2, node, workingParents, rootsBySigma, newRoots, prefixes, oldPrefixes, DATA_FOLDER / "parents", MAX_ROOTS)
+
+					util.getParents(m, dM, node, workingParents, rootsBySigma, newRoots, prefixes, oldPrefixes, DATA_FOLDER / "parents", MAX_ROOTS)
+
+
 
 					#create the parent nodes, remove their root from rootsBySigma, add to newRoots
 					# for parent in parents:
@@ -258,7 +262,9 @@ def expandSideLayer(DATA_FOLDER, depth, pM, dM, prefixes):
 
 				#get the parents of node
 				# parents = util.getParents(2, pM + dM-2, node)
-				util.getParents(2, pM+dM-2, node, workingParents, rootsBySigma, newRoots, prefixes, oldPrefixes, DATA_FOLDER / "parents", MAX_ROOTS)
+				# util.getParents(2, pM+dM-2, node, workingParents, rootsBySigma, newRoots, prefixes, oldPrefixes, DATA_FOLDER / "parents", MAX_ROOTS)
+
+				util.getParents(pM, dM, node, workingParents, rootsBySigma, newRoots, prefixes, oldPrefixes, DATA_FOLDER / "parents", MAX_ROOTS)
 
 				#create the parent nodes, remove their root from rootsBySigma, add to newRoots
 				# for parent in parents:
