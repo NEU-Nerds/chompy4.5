@@ -109,7 +109,7 @@ def genParentsFromExistingEvens(evens, depth, pM, dM):
 	settings.currParentsNum = 0
 
 	for even in evens:
-		getParents(even[-1], pM+dM-even[-1], even, workingParents, {}, {})
+		getParents(even[-1], pM+dM, even, workingParents, {}, {})
 		# getParents(pM, dM, even, workingParents, {}, {})
 
 	for pfix in workingParents.keys():
@@ -156,7 +156,7 @@ def addParent(p, parents, rBS, newRoots):
 
 # returns the parents of a given node at the same tree depth (don't add the tails)
 # pass in previous width, change in width, and the node
-def getParents (pM, dM, evenNode, parents, rBS, newRoots):
+def getParents (pM, newM, evenNode, parents, rBS, newRoots):
 	# parents = {} # stores all generated parents of the even node, eventually returned
 	lastAdded = set() # used to store things between depths for layer equivalence stuff
 	layerEq = layerEquivalence(evenNode)
@@ -173,7 +173,7 @@ def getParents (pM, dM, evenNode, parents, rBS, newRoots):
 
 		start = max(pM + 1, evenNode[d] + 1)
 		# stop = dM + 1
-		stop = pM + dM + 1
+		stop = newM + 1
 		if d != 0:
 			# start = min(evenNode[d] + 1, pM + 1)
 			stop = max(evenNode[d-1] + 1, start)
