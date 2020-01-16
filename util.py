@@ -3,12 +3,13 @@ import os
 import shutil
 import time
 import sys
-import json
+# import json
 import settings
 # from objsize import get_deep_size
 
 
 #eventually replace with trie if this takes time
+#does take some time
 #all prefixes will be tuples
 def getPrefix(node, root):
 	pS = settings.staticPrefixes
@@ -16,7 +17,7 @@ def getPrefix(node, root):
 		pS = settings.prefixes
 
 	index = 0
-	while index < len(node)+1:
+	while index <= len(node):
 		if node[:index] in pS:
 			return node[:index]
 		index += 1
@@ -37,21 +38,6 @@ def splitPrefix(prefix, s):
 	for node in nodes:
 		addToSet(node, s, True)#, maxNodes)
 
-	# print(f"Splititng post: {s}")
-	# print(f"Splititng postP: {settings.prefixes}")
-	# needed?
-	# noSplit = True
-	# while noSplit:
-	# 	noSplit = False
-	# 	for p in s.keys():
-	#
-	# 		if len(s[p]) > settings.MAX_ROOTS:
-	#
-	# 			print("HELLO")
-	# 			noSplit = True
-	# 			splitPrefix(p, s)
-	# print(f"mid s: {s}")
-	#handle root files???
 
 	#for file in oldPrefix dir, load nodes and store into current dir
 	try:
@@ -70,6 +56,15 @@ def splitPrefix(prefix, s):
 		pass
 
 	# print(f"post s: {s}")
+
+# def addPrefix(p):
+# 	index = 0
+#
+# 	currList = settings.prefixes
+# 	while index < len(p) and p[index] in currList:
+# 		index += 1
+
+
 
 
 def addToSet(node, s, root=False):
@@ -124,10 +119,10 @@ def genParentsFromExistingEvens(evens, depth, pM, dM):
 def addParent(p, parents, rBS, newRoots):
 	# if p == (6, 1, 1, 1, 1):
 	# 	print("(6, 1, 1, 1, 1) was a parent")
-	pRoot = p[:-1]
+	# pRoot =
 	# print(f"PARENT: {p} from node {e}" )
 	try:
-		rBS[sum(p)].remove(pRoot)
+		rBS[sum(p)].remove(p[:-1])
 		# print(f"adding new root: {p}")
 		addToSet(p, newRoots, root=True)
 	except Exception as e:
@@ -160,7 +155,9 @@ def getParents (pM, newM, evenNode, parents, rBS, newRoots):
 	# parents = {} # stores all generated parents of the even node, eventually returned
 	lastAdded = set() # used to store things between depths for layer equivalence stuff
 	layerEq = layerEquivalence(evenNode)
-
+	tempParents = set()
+	redCount = 0
+	totalCount = 0
 	# go through each index of the node
 	for d in range(len(evenNode)):
 		# finding the range of numbers that can be parents
@@ -203,6 +200,13 @@ def getParents (pM, newM, evenNode, parents, rBS, newRoots):
 		else:
 			for p in lastAdded:
 				addParent(p, parents, rBS, newRoots)
+				if p in tempParents:
+					# print(f"Redundent parent: {p}")
+					redCount += 1
+					totalCount += 1
+				else:
+					tempParents.add(p)
+					totalCount += 1
 			# parents.update(lastAdded) # add the parents from last added to the list of parents
 			lastAdded = set() # reset lastAdded because the layers are different
 
@@ -214,6 +218,13 @@ def getParents (pM, newM, evenNode, parents, rBS, newRoots):
 			lastAdded.add(tuple(p))
 		for p in lastAdded:
 			addParent(p, parents, rBS, newRoots)
+			if p in tempParents:
+				# print(f"Redundent parent: {p}")
+				redCount += 1
+				totalCount += 1
+			else:
+				tempParents.add(p)
+				totalCount += 1
 		# parents.update(lastAdded)
 
 	# return parents
@@ -223,7 +234,7 @@ def getParents (pM, newM, evenNode, parents, rBS, newRoots):
 	# 	except Exception as e:
 	# 		print(f"error: {e}")
 	# parents.clear()
-
+	print(f"Total count: {totalCount}\tRedundantCount: {redCount}\tratio: {redCount/totalCount}")
 
 #mostly identical to getParents, but without all the extra stuff for batching so it can be tested easily
 def getParentsTest (pM, newM, evenNode):
