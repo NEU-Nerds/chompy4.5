@@ -106,6 +106,7 @@ def genRBS(roots):
 def genParentsFromExistingEvens(evens, depth, pM, dM):
 	# print("genParentsFromExistingEvens")
 	workingParents = {}
+	settings.currParentsNum = 0
 
 	for even in evens:
 		getParents(pM, dM, even, workingParents, {}, {})
@@ -132,12 +133,15 @@ def addParent(p, parents, rBS, newRoots):
 		# print(f"addParent error: {e}")
 		pass
 
+	#what about repeates? Ignore for now?
+	# if p not in parents
 	addToSet(p, parents)
+	settings.currParentsNum += 1
 
-	s = 0
-	for k in parents.keys():
-		s += len(parents[k])
-	if s > settings.MAX_ROOTS:
+	# s = 0
+	# for k in parents.keys():
+	# 	s += len(parents[k])
+	if settings.currParentsNum > settings.MAX_ROOTS:
 		# print(f"storing parents from addParent: {parents}")
 		for prefix in parents.keys():
 			try:
@@ -146,6 +150,7 @@ def addParent(p, parents, rBS, newRoots):
 			except Exception as e:
 				# print(f"in addParent could not store bc: {e}")
 				pass
+		settings.currParentsNum = 0
 		parents.clear()
 
 # returns the parents of a given node at the same tree depth (don't add the tails)

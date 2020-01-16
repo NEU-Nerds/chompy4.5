@@ -26,6 +26,7 @@ prefixes = None
 staticPrefixes = None
 currRootsDir = None
 currOldRootsDir = None
+currParentsNum = None
 
 printEvens = None
 
@@ -42,6 +43,10 @@ def init():
     global DELTA_N
     global DELTA_M
     global MAX_ROOTS
+    global printEvens
+    global currParentsNum
+
+    currParentsNum = 0
 
     THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
     #THIS_FOLDER = "D:/Mass Storage/Math/chompy"
@@ -54,8 +59,8 @@ def init():
     PARENTS_FOLDER = Path(DATA_FOLDER, "./parents/")
     ROOTS_BY_SIGMA_FOLDER = Path(DATA_FOLDER, "./rootsBySigma/")
 
-    MAX_M = 10
-    MAX_N = 10
+    MAX_M = 16
+    MAX_N = 16
 
     #currently only do 1
     DELTA_N = 1

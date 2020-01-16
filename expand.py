@@ -27,7 +27,7 @@ def expandDown(m, n, dM, dN):
 		settings.currOldRootsDir = settings.DATA_FOLDER / "oldRoots"
 
 		expandMain(d, m, dM)
-		
+
 
 def expandSide (m, n, dM, dN):
 	# print("\nExpanding Side")
@@ -81,6 +81,7 @@ def expandSideLayer(depth, m, dM):
 
 	# print(f"evens: {evens}")
 	settings.staticPrefixes = settings.prefixes.copy()
+
 	util.genParentsFromExistingEvens(evens, depth, m, dM)
 
 	expandMain(depth, m, dM, evens)
@@ -102,6 +103,7 @@ def expandMain(depth, m, dM, evens = set()):
 		# print(f"file: {f}")
 		newRoots = {}
 		workingParents = {}
+		settings.currParentsNum = 0
 		util.combineDir(settings.currRootsDir, str(f), True)
 		try:
 			roots = util.load(f"{settings.currOldRootsDir}/{f}.dat")
