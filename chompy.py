@@ -63,6 +63,7 @@ def main():
 
 	print(f"\n\nTotal run time for {startM}X{startN} to {m}X{n}: {time.time() - firstST}s ")
 
+	# print(f"\nTotal count: {settings.totalCount}\tRedundantCount: {settings.redCount}\tratio: {settings.redCount/settings.totalCount}")
 #seed the 1x1 board
 def seed():
 	#make sure all folders exist
@@ -112,5 +113,6 @@ def seed():
 if __name__ == '__main__':
 	settings.init()
 	print(f"DATA_FOLDER: {settings.DATA_FOLDER}")
-	seed()
+	if settings.doSeed:
+		seed()
 	main()

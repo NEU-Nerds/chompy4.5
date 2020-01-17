@@ -29,6 +29,10 @@ currOldRootsDir = None
 currParentsNum = None
 
 printEvens = None
+doSeed = None
+
+redCount = None
+totalCount = None
 
 def init():
     global THIS_FOLDER
@@ -44,7 +48,14 @@ def init():
     global DELTA_M
     global MAX_ROOTS
     global printEvens
+    global doSeed
     global currParentsNum
+
+    global redCount
+    global totalCount
+
+    redCount = 0
+    totalCount = 0
 
     currParentsNum = 0
 
@@ -59,8 +70,10 @@ def init():
     PARENTS_FOLDER = Path(DATA_FOLDER, "./parents/")
     ROOTS_BY_SIGMA_FOLDER = Path(DATA_FOLDER, "./rootsBySigma/")
 
-    MAX_M = 8
-    MAX_N = 8
+    MAX_M = 13
+    MAX_N = 13
+
+    doSeed = True
 
     #currently only do 1
     DELTA_N = 1

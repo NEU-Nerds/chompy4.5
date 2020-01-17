@@ -81,7 +81,6 @@ def expandSideLayer(depth, m, dM):
 
 	# print(f"evens: {evens}")
 	settings.staticPrefixes = settings.prefixes.copy()
-
 	util.genParentsFromExistingEvens(evens, depth, m, dM)
 
 	expandMain(depth, m, dM, True, evens)
@@ -179,10 +178,10 @@ def expandMain(depth, m, dM, isSide, evens = set()):
 				# parentD = m+dM
 
 				if (isSide):
-					parentS = pM
+					parentS = m
 				# 	parentD = m+dM-node[-1]
 
-				util.getParents(parentS, m+dM, node, workingParents, rootsBySigma, newRoots)
+				util.getParents(parentS, dM, node, workingParents, rootsBySigma, newRoots)
 				# util.getParents(parentS, m+dM, node, workingParents, rootsBySigma, newRoots)
 
 			# if newRoots != {}:
