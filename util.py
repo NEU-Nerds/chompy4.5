@@ -151,13 +151,53 @@ def addParent(p, parents, rBS, newRoots):
 
 # returns the parents of a given node at the same tree depth (don't add the tails)
 # pass in previous width, change in width, and the node
+def getP(p, pM, dM):
+	lE= layerEquivalence(p)
+	# print(f"lE: {lE}")
+	yield from recP(list(p)[:], lE, True, 1)
+	for x in range(max(p[0],pM+1)+1, pM+dM+1):
+		wP = list(p)[:]
+		wP[0] = x
+		yield tuple(wP)
+		yield from recP(wP, lE, False, 1)
+
+
+
+def recP(wP, lE, untouched, i):
+	# untouched = copy(untouched)
+	wP = wP[:]
+	# print(f"RecP call with: {wP}, {lE}, {untouched}, {i}")
+	if i >= len(wP):
+		return
+	yield from recP(wP, lE, untouched, i+1)
+
+	# for i in range(startI, len(wP)):
+		# yield from recP(wP, i+1)
+	if untouched:
+		untouched = False
+		for x in range(wP[i]+1, wP[i-1]+1):
+			wP[i] = x
+			yield tuple(wP)
+			yield from recP(wP, lE, untouched, i+1)
+	elif lE[i]:
+		# print("HI")
+		untouched = False
+		for x in range(wP[i]+1, wP[i-1]+1):
+			wP[i] = x
+			yield tuple(wP)
+			yield from recP(wP, lE, untouched, i+1)
+
 def getParents (pM, dM, evenNode, parents, rBS, newRoots):
+	for p in getP(evenNode, pM, dM):
+		addParent(p, parents, rBS, newRoots)
+		
+def getParents2 (pM, dM, evenNode, parents, rBS, newRoots):
 	# parents = {} # stores all generated parents of the even node, eventually returned
 	lastAdded = set() # used to store things between depths for layer equivalence stuff
 	layerEq = layerEquivalence(evenNode)
 	tempParents = set()
-	redCount = 0
-	totalCount = 0
+	# redCount = 0
+	# totalCount = 0
 	# go through each index of the node
 	for d in range(len(evenNode)):
 		# finding the range of numbers that can be parents
@@ -202,11 +242,11 @@ def getParents (pM, dM, evenNode, parents, rBS, newRoots):
 				addParent(p, parents, rBS, newRoots)
 				if p in tempParents:
 					# print(f"Redundent parent: {p}")
-					redCount += 1
-					totalCount += 1
+					settings.redCount += 1
+					settings.totalCount += 1
 				else:
 					tempParents.add(p)
-					totalCount += 1
+					settings.totalCount += 1
 			# parents.update(lastAdded) # add the parents from last added to the list of parents
 			lastAdded = set() # reset lastAdded because the layers are different
 
@@ -220,11 +260,11 @@ def getParents (pM, dM, evenNode, parents, rBS, newRoots):
 			addParent(p, parents, rBS, newRoots)
 			if p in tempParents:
 				# print(f"Redundent parent: {p}")
-				redCount += 1
-				totalCount += 1
+				settings.redCount += 1
+				settings.totalCount += 1
 			else:
 				tempParents.add(p)
-				totalCount += 1
+				settings.totalCount += 1
 		# parents.update(lastAdded)
 
 	# return parents
@@ -234,8 +274,9 @@ def getParents (pM, dM, evenNode, parents, rBS, newRoots):
 	# 	except Exception as e:
 	# 		print(f"error: {e}")
 	# parents.clear()
-	print(f"Total count: {totalCount}\tRedundantCount: {redCount}\tratio: {redCount/totalCount}")
-
+	# print(f"Total count: {totalCount}\tRedundantCount: {redCount}\tratio: {redCount/totalCount}")
+	# if totalCount >= 5000000:
+	# 	print(f"Biggun: {evenNode}")
 #mostly identical to getParents, but without all the extra stuff for batching so it can be tested easily
 def getParentsTest (pM, newM, evenNode):
 	parents = set() # stores all generated parents of the even node, eventually returned
