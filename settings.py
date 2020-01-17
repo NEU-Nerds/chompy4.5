@@ -73,7 +73,7 @@ def init():
     MAX_M = 14
     MAX_N = 14
 
-    doSeed = False
+    doSeed = True
 
     #currently only do 1
     DELTA_N = 1

@@ -100,20 +100,20 @@ def genRBS(roots):
 #get the parents of the existing evens and store them in parents directory
 def genParentsFromExistingEvens(evens, depth, pM, dM):
 	# print("genParentsFromExistingEvens")
-	workingParents = {}
+	workingParents = set()
 	settings.currParentsNum = 0
 	# print(f"pM: {pM}\tdM: {dM}")
 	for even in evens:
 		getParents(pM, dM, even, workingParents, {}, {})
 		# getParents(pM, dM, even, workingParents, {}, {})
-
-	for pfix in workingParents.keys():
-		try:
-			dirStore(workingParents[pfix], settings.PARENTS_FOLDER, str(pfix))
-			# print(f"storing pfix: {pfix}:\t{workingParents[pfix]}")
-		except Exception as e:
-			# print("could not store bc: "+str(e))
-			pass
+	storeParents(workingParents)
+	# for pfix in workingParents.keys():
+	# 	try:
+	# 		dirStore(workingParents[pfix], settings.PARENTS_FOLDER, str(pfix))
+	# 		# print(f"storing pfix: {pfix}:\t{workingParents[pfix]}")
+	# 	except Exception as e:
+	# 		# print("could not store bc: "+str(e))
+	# 		pass
 
 
 def addParent(p, parents, rBS, newRoots):
@@ -129,6 +129,12 @@ def addParent(p, parents, rBS, newRoots):
 		# print(f"addParent error: {e}")
 		pass
 
+	parents.add(p)
+	if len(parents) > settings.MAX_ROOTS:
+		storeParents(parents)
+
+
+	"""
 	#what about repeates? Ignore for now?
 	# if p not in parents
 	addToSet(p, parents)
@@ -148,7 +154,7 @@ def addParent(p, parents, rBS, newRoots):
 				pass
 		settings.currParentsNum = 0
 		parents.clear()
-
+	"""
 # returns the parents of a given node at the same tree depth (don't add the tails)
 # pass in previous width, change in width, and the node
 def getP(p, pM, dM):
@@ -383,6 +389,19 @@ def emptyDir(folder):
 				shutil.rmtree(file_path)
 		except Exception as e:
 			print('Failed to delete %s. Reason: %s' % (file_path, e))
+
+def storeParents(parents):
+	sortedP = {}
+	for p in parents:
+		addToSet(p, sortedP)
+
+	for pfix in sortedP.keys():
+		try:
+			dirStore(sortedP[pfix], settings.PARENTS_FOLDER, str(pfix))
+		except Exception as e:
+			# print(f"error: {e}")
+			pass
+	parents.clear()
 
 def dirStore(data, folder, name):
 	try:

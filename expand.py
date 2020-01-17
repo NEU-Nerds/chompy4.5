@@ -101,7 +101,7 @@ def expandMain(depth, m, dM, isSide, evens = set()):
 	for f in ps:
 		# print(f"file: {f}")
 		newRoots = {}
-		workingParents = {}
+		workingParents = set()
 		settings.currParentsNum = 0
 		util.combineDir(settings.currRootsDir, str(f), True)
 		# util.combineDir(settings.PARENTS_FOLDER, str(f), True)
@@ -201,12 +201,13 @@ def expandMain(depth, m, dM, isSide, evens = set()):
 
 		del rootsBySigma
 		# print(f"workingParents: {workingParents}")
-		for pfix in workingParents.keys():
-			try:
-				util.dirStore(workingParents[pfix], settings.PARENTS_FOLDER, str(pfix))
-			except Exception as e:
-				# print(f"error: {e}")
-				pass
+		util.storeParents(workingParents)
+		# for pfix in workingParents.keys():
+		# 	try:
+		# 		util.dirStore(workingParents[pfix], settings.PARENTS_FOLDER, str(pfix))
+		# 	except Exception as e:
+		# 		# print(f"error: {e}")
+		# 		pass
 
 
 	for p in settings.prefixes:
