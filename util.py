@@ -104,7 +104,7 @@ def genParentsFromExistingEvens(evens, depth, pM, dM):
 	settings.currParentsNum = 0
 
 	for even in evens:
-		getParents(even[-1], pM+dM, even, workingParents, {}, {})
+		getParents(pM, dM, even, workingParents, {}, {})
 		# getParents(pM, dM, even, workingParents, {}, {})
 
 	for pfix in workingParents.keys():
