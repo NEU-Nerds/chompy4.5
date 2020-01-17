@@ -102,7 +102,7 @@ def genParentsFromExistingEvens(evens, depth, pM, dM):
 	# print("genParentsFromExistingEvens")
 	workingParents = {}
 	settings.currParentsNum = 0
-
+	# print(f"pM: {pM}\tdM: {dM}")
 	for even in evens:
 		getParents(pM, dM, even, workingParents, {}, {})
 		# getParents(pM, dM, even, workingParents, {}, {})
@@ -154,11 +154,14 @@ def addParent(p, parents, rBS, newRoots):
 def getP(p, pM, dM):
 	lE= layerEquivalence(p)
 	# print(f"lE: {lE}")
-	yield from recP(list(p)[:], lE, True, 1)
-	for x in range(max(p[0],pM+1)+1, pM+dM+1):
+	if p[0] > pM:
+		yield from recP(list(p)[:], lE, True, 1)
+	for x in range(max(p[0],pM+1), pM+dM+1):
+		# print(f"x: {x}")
 		wP = list(p)[:]
 		wP[0] = x
-		yield tuple(wP)
+		if x != p[0]:
+			yield tuple(wP)
 		yield from recP(wP, lE, False, 1)
 
 
@@ -168,7 +171,11 @@ def recP(wP, lE, untouched, i):
 	wP = wP[:]
 	# print(f"RecP call with: {wP}, {lE}, {untouched}, {i}")
 	if i >= len(wP):
+		# print("HELLO")
 		return
+
+
+	# if i < len(wP)-1 or not untouched:
 	yield from recP(wP, lE, untouched, i+1)
 
 	# for i in range(startI, len(wP)):
@@ -177,6 +184,7 @@ def recP(wP, lE, untouched, i):
 		untouched = False
 		for x in range(wP[i]+1, wP[i-1]+1):
 			wP[i] = x
+			# print(f"yielding {wP}")
 			yield tuple(wP)
 			yield from recP(wP, lE, untouched, i+1)
 	elif lE[i]:
@@ -184,12 +192,21 @@ def recP(wP, lE, untouched, i):
 		untouched = False
 		for x in range(wP[i]+1, wP[i-1]+1):
 			wP[i] = x
+			# print(f"yielding {wP}")
 			yield tuple(wP)
 			yield from recP(wP, lE, untouched, i+1)
 
+
 def getParents (pM, dM, evenNode, parents, rBS, newRoots):
 	for p in getP(evenNode, pM, dM):
+		# print(f"parent: {p}")
 		addParent(p, parents, rBS, newRoots)
+	# for prefix in parents.keys():
+	# 	try:
+	# 		dirStore(parents[prefix], folder, str(prefix))
+	# 	except Exception as e:
+	# 		print(f"error: {e}")
+	# 	parents.clear()
 """
 def getParents2 (pM, dM, evenNode, parents, rBS, newRoots):
 	# parents = {} # stores all generated parents of the even node, eventually returned

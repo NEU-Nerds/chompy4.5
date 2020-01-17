@@ -70,10 +70,10 @@ def init():
     PARENTS_FOLDER = Path(DATA_FOLDER, "./parents/")
     ROOTS_BY_SIGMA_FOLDER = Path(DATA_FOLDER, "./rootsBySigma/")
 
-    MAX_M = 15
-    MAX_N = 15
+    MAX_M = 14
+    MAX_N = 14
 
-    doSeed = True
+    doSeed = False
 
     #currently only do 1
     DELTA_N = 1
@@ -84,4 +84,4 @@ def init():
     MAX_ROOTS = 10 ** 6
     # MAX_ROOTS = 5
 
-    printEvens = False
+    # printEvens = True

@@ -104,6 +104,7 @@ def expandMain(depth, m, dM, isSide, evens = set()):
 		workingParents = {}
 		settings.currParentsNum = 0
 		util.combineDir(settings.currRootsDir, str(f), True)
+		# util.combineDir(settings.PARENTS_FOLDER, str(f), True)
 		try:
 			roots = util.load(f"{settings.currOldRootsDir}/{f}.dat")
 		except Exception as e:
@@ -123,7 +124,7 @@ def expandMain(depth, m, dM, isSide, evens = set()):
 		# n1 = list(roots)[0]
 		# prefix = util.getPrefix(n1, oldPrefixes)
 
-
+		# print(os.listdir(settings.PARENTS_FOLDER))
 		util.combineDir(settings.PARENTS_FOLDER, str(f))
 		# if f == (6, 4):
 			# print("NUM FILES: "+str(len(os.listdir(DATA_FOLDER / f"parents/{f}" ))))
@@ -159,6 +160,7 @@ def expandMain(depth, m, dM, isSide, evens = set()):
 		#go through each sigma starting from smallest
 		for sigma in range(min(rootsBySigma.keys()), max(rootsBySigma.keys()) + 1):
 			#if this sigma is empty why bother
+			# print(f"sigma: {sigma}")
 			if sigma not in rootsBySigma.keys():
 				continue
 			# print(f"Sigma: {sigma}")
@@ -168,25 +170,28 @@ def expandMain(depth, m, dM, isSide, evens = set()):
 			#each node here will be even
 			for root in rootsBySigma[sigma]:
 				#create the node, add it to evens
+				# print("starting")
 				node = tuple(list(root) + [sigma - sum(root)] )
 				evens.add(node)
 				# print(f"node: {node}")
 
 				#get the parents of node
 				# parents = util.getParents(2, pM + dM-2, node)
-				parentS = node[-1]
+				start = node[0]-1
+				delta = m+dM - (node[0]-1)
 				# parentD = m+dM
 
 				if (isSide):
-					parentS = m
+					start = m
+					delta = dM
 				# 	parentD = m+dM-node[-1]
-
-				util.getParents(parentS, dM, node, workingParents, rootsBySigma, newRoots)
+				# print(f"pre parents {rootsBySigma}")
+				util.getParents(start, delta, node, workingParents, rootsBySigma, newRoots)
 				# util.getParents(parentS, m+dM, node, workingParents, rootsBySigma, newRoots)
-
+				# print(f"post Parents {rootsBySigma}")
 			# if newRoots != {}:
 			# 	print(f"newRoots: {newRoots}")
-
+			# print("past roots")
 			for p in newRoots.keys():
 				util.dirStore(newRoots[p], settings.currRootsDir, str(p))
 
@@ -195,6 +200,7 @@ def expandMain(depth, m, dM, isSide, evens = set()):
 			del rootsBySigma[sigma]
 
 		del rootsBySigma
+		# print(f"workingParents: {workingParents}")
 		for pfix in workingParents.keys():
 			try:
 				util.dirStore(workingParents[pfix], settings.PARENTS_FOLDER, str(pfix))

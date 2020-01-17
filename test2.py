@@ -8,11 +8,14 @@ def layerEquivalence(path):
 def getP(p, pM, dM):
 	lE= layerEquivalence(p)
 	# print(f"lE: {lE}")
-	yield from recP(list(p)[:], lE, True, 1)
-	for x in range(max(p[0],pM+1)+1, pM+dM+1):
+	if p[0] > pM:
+		yield from recP(list(p)[:], lE, True, 1)
+	for x in range(max(p[0],pM+1), pM+dM+1):
+		# print(f"x: {x}")
 		wP = list(p)[:]
 		wP[0] = x
-		yield tuple(wP)
+		if x != p[0]:
+			yield tuple(wP)
 		yield from recP(wP, lE, False, 1)
 
 
@@ -22,7 +25,11 @@ def recP(wP, lE, untouched, i):
 	wP = wP[:]
 	# print(f"RecP call with: {wP}, {lE}, {untouched}, {i}")
 	if i >= len(wP):
+		# print("HELLO")
 		return
+
+
+	# if i < len(wP)-1 or not untouched:
 	yield from recP(wP, lE, untouched, i+1)
 
 	# for i in range(startI, len(wP)):
@@ -31,6 +38,7 @@ def recP(wP, lE, untouched, i):
 		untouched = False
 		for x in range(wP[i]+1, wP[i-1]+1):
 			wP[i] = x
+			# print(f"yielding {wP}")
 			yield tuple(wP)
 			yield from recP(wP, lE, untouched, i+1)
 	elif lE[i]:
@@ -38,6 +46,7 @@ def recP(wP, lE, untouched, i):
 		untouched = False
 		for x in range(wP[i]+1, wP[i-1]+1):
 			wP[i] = x
+			# print(f"yielding {wP}")
 			yield tuple(wP)
 			yield from recP(wP, lE, untouched, i+1)
 
@@ -56,11 +65,12 @@ def recP(wP, lE, untouched, i):
 s = 0
 d = 0
 allP = set()
-for parent in getP((13,1,1,1,1,1,1,1,1,1,1,1,1), 0,13):
-	# print(f"parent: {parent}")
+for parent in getP((2,2,1), 2,1):
+	print(f"parent: {parent}")
 	s += 1
 	if parent in allP:
 		d+= 1
 	else:
 		allP.add(parent)
 print(d/s)
+print(s)
