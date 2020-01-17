@@ -190,7 +190,7 @@ def recP(wP, lE, untouched, i):
 def getParents (pM, dM, evenNode, parents, rBS, newRoots):
 	for p in getP(evenNode, pM, dM):
 		addParent(p, parents, rBS, newRoots)
-
+"""
 def getParents2 (pM, dM, evenNode, parents, rBS, newRoots):
 	# parents = {} # stores all generated parents of the even node, eventually returned
 	lastAdded = set() # used to store things between depths for layer equivalence stuff
@@ -344,6 +344,7 @@ def getParentsTest (pM, newM, evenNode):
 	# 	except Exception as e:
 	# 		print(f"error: {e}")
 	# parents.clear())
+"""
 
 # pass in a path representing a node.
 # returns a list of bools with the same length

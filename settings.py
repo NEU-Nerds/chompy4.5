@@ -70,8 +70,8 @@ def init():
     PARENTS_FOLDER = Path(DATA_FOLDER, "./parents/")
     ROOTS_BY_SIGMA_FOLDER = Path(DATA_FOLDER, "./rootsBySigma/")
 
-    MAX_M = 13
-    MAX_N = 13
+    MAX_M = 15
+    MAX_N = 15
 
     doSeed = True
 
