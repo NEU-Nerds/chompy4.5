@@ -104,7 +104,7 @@ def genParentsFromExistingEvens(evens, depth, pM, dM):
 	settings.currParentsNum = 0
 
 	for even in evens:
-		getParents(even[-1], pM+dM-even[-1], even, workingParents, {}, {})
+		getParents(even[-1], pM+dM, even, workingParents, {}, {})
 		# getParents(pM, dM, even, workingParents, {}, {})
 
 	for pfix in workingParents.keys():
@@ -190,7 +190,7 @@ def recP(wP, lE, untouched, i):
 def getParents (pM, dM, evenNode, parents, rBS, newRoots):
 	for p in getP(evenNode, pM, dM):
 		addParent(p, parents, rBS, newRoots)
-		
+
 def getParents2 (pM, dM, evenNode, parents, rBS, newRoots):
 	# parents = {} # stores all generated parents of the even node, eventually returned
 	lastAdded = set() # used to store things between depths for layer equivalence stuff
@@ -210,7 +210,7 @@ def getParents2 (pM, dM, evenNode, parents, rBS, newRoots):
 
 		start = max(pM + 1, evenNode[d] + 1)
 		# stop = dM + 1
-		stop = pM + dM + 1
+		stop = newM + 1
 		if d != 0:
 			# start = min(evenNode[d] + 1, pM + 1)
 			stop = max(evenNode[d-1] + 1, start)

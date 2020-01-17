@@ -175,13 +175,13 @@ def expandMain(depth, m, dM, isSide, evens = set()):
 				#get the parents of node
 				# parents = util.getParents(2, pM + dM-2, node)
 				parentS = node[-1]
-				parentD = m+dM - node[-1]
+				# parentD = m+dM
 
-				# if (isSide):
-				# 	parentS = node[-1]
+				if (isSide):
+					parentS = m
 				# 	parentD = m+dM-node[-1]
 
-				util.getParents(parentS, parentD, node, workingParents, rootsBySigma, newRoots)
+				util.getParents(parentS, m+dM, node, workingParents, rootsBySigma, newRoots)
 				# util.getParents(parentS, m+dM, node, workingParents, rootsBySigma, newRoots)
 
 			# if newRoots != {}:
