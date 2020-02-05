@@ -57,13 +57,6 @@ def splitPrefix(prefix, s):
 
 	# print(f"post s: {s}")
 
-# def addPrefix(p):
-# 	index = 0
-#
-# 	currList = settings.prefixes
-# 	while index < len(p) and p[index] in currList:
-# 		index += 1
-
 
 
 
@@ -107,13 +100,6 @@ def genParentsFromExistingEvens(evens, depth, pM, dM):
 		getParents(pM, dM, even, workingParents, {}, {})
 		# getParents(pM, dM, even, workingParents, {}, {})
 	storeParents(workingParents)
-	# for pfix in workingParents.keys():
-	# 	try:
-	# 		dirStore(workingParents[pfix], settings.PARENTS_FOLDER, str(pfix))
-	# 		# print(f"storing pfix: {pfix}:\t{workingParents[pfix]}")
-	# 	except Exception as e:
-	# 		# print("could not store bc: "+str(e))
-	# 		pass
 
 
 def addParent(p, parents, rBS, newRoots):
@@ -134,27 +120,6 @@ def addParent(p, parents, rBS, newRoots):
 		storeParents(parents)
 
 
-	"""
-	#what about repeates? Ignore for now?
-	# if p not in parents
-	addToSet(p, parents)
-	settings.currParentsNum += 1
-
-	# s = 0
-	# for k in parents.keys():
-	# 	s += len(parents[k])
-	if settings.currParentsNum > settings.MAX_ROOTS:
-		# print(f"storing parents from addParent: {parents}")
-		for prefix in parents.keys():
-			try:
-
-				dirStore(parents[prefix], settings.PARENTS_FOLDER, str(prefix))
-			except Exception as e:
-				# print(f"in addParent could not store bc: {e}")
-				pass
-		settings.currParentsNum = 0
-		parents.clear()
-	"""
 # returns the parents of a given node at the same tree depth (don't add the tails)
 # pass in previous width, change in width, and the node
 def getP(p, pM, dM):
@@ -207,167 +172,20 @@ def getParents (pM, dM, evenNode, parents, rBS, newRoots):
 	for p in getP(evenNode, pM, dM):
 		# print(f"parent: {p}")
 		addParent(p, parents, rBS, newRoots)
-	# for prefix in parents.keys():
-	# 	try:
-	# 		dirStore(parents[prefix], folder, str(prefix))
-	# 	except Exception as e:
-	# 		print(f"error: {e}")
-	# 	parents.clear()
-"""
-def getParents2 (pM, dM, evenNode, parents, rBS, newRoots):
-	# parents = {} # stores all generated parents of the even node, eventually returned
-	lastAdded = set() # used to store things between depths for layer equivalence stuff
-	layerEq = layerEquivalence(evenNode)
-	tempParents = set()
-	# redCount = 0
-	# totalCount = 0
-	# go through each index of the node
-	for d in range(len(evenNode)):
-		# finding the range of numbers that can be parents
-			# set "start" and "stop" depending on the depth
-				# start at the max of 1 greater than the current width or 1 more than the int at current depth
-			# if depth is 0:
-				# stop at the next width + 1
-			# if depth is not 0:
-				# stop at the max of (start or int at previous depth +1)
 
-		start = max(pM + 1, evenNode[d] + 1)
-		# stop = dM + 1
-		stop = newM + 1
-		if d != 0:
-			# start = min(evenNode[d] + 1, pM + 1)
-			stop = max(evenNode[d-1] + 1, start)
-
-		# the value of the parent at any depth must be greater than or equal to the value of the child at any depth
-		 	# this is why we start is set to be evenNode[d] + 1.
-			# we add in the max of that and previous width so we don't have to
-				# generate the parents of the even board that have already been generated
-		# the upper limit is different depending on whether depth is 0 or not 0.
-			# if depth is 0, the upper limit is simply the new width (+ 1 so it's inclusive)
-			# if depth is not 0, the upper limit should be the previous depth's value (+1 for inclusive)
-				# however if that is less than the value of start, we don't want to do anything at this depth
-				# so we use the max() with start. eg: "for i in range(foo, foo)" does nothing
-
-		# see if the last layer is the same as this layer
-		if layerEq[d]:
-			toAdd = set() #1 new parents to be added to the overall list later
-			for parent in lastAdded: # go through all of the parents from the previous layer(s)
-				# add new parents based off of the current parent for every possible value
-				# the new parents can be from the value of the current depth to the value of previous depth
-				for i in range(parent[d], parent[d-1] + 1):
-					p = list(parent[:])
-					p[d] = i
-
-					toAdd.add(tuple(p))
-			lastAdded.update(toAdd)
-		else:
-			for p in lastAdded:
-				addParent(p, parents, rBS, newRoots)
-				if p in tempParents:
-					# print(f"Redundent parent: {p}")
-					settings.redCount += 1
-					settings.totalCount += 1
-				else:
-					tempParents.add(p)
-					settings.totalCount += 1
-			# parents.update(lastAdded) # add the parents from last added to the list of parents
-			lastAdded = set() # reset lastAdded because the layers are different
-
-		# setting the nodes in the range of previously generated numbers as parents
-		for i in range(start, stop):
-			# casting to list from tuple so you can change the value at the current depth
-			p = list(evenNode[:]) # copy the current node
-			p[d] = i #change the value at current depth
-			lastAdded.add(tuple(p))
-		for p in lastAdded:
-			addParent(p, parents, rBS, newRoots)
-			if p in tempParents:
-				# print(f"Redundent parent: {p}")
-				settings.redCount += 1
-				settings.totalCount += 1
-			else:
-				tempParents.add(p)
-				settings.totalCount += 1
-		# parents.update(lastAdded)
-
-	# return parents
-	# for prefix in parents.keys():
-	# 	try:
-	# 		dirStore(parents[prefix], folder, str(prefix))
-	# 	except Exception as e:
-	# 		print(f"error: {e}")
-	# parents.clear()
-	# print(f"Total count: {totalCount}\tRedundantCount: {redCount}\tratio: {redCount/totalCount}")
-	# if totalCount >= 5000000:
-	# 	print(f"Biggun: {evenNode}")
-#mostly identical to getParents, but without all the extra stuff for batching so it can be tested easily
-def getParentsTest (pM, newM, evenNode):
-	parents = set() # stores all generated parents of the even node, eventually returned
-	lastAdded = set() # used to store things between depths for layer equivalence stuff
-	layerEq = layerEquivalence(evenNode)
-
-	# go through each index of the node
-	for d in range(len(evenNode)):
-		# finding the range of numbers that can be parents
-			# set "start" and "stop" depending on the depth
-				# start at the max of 1 greater than the current width or 1 more than the int at current depth
-			# if depth is 0:
-				# stop at the next width + 1
-			# if depth is not 0:
-				# stop at the max of (start or int at previous depth +1)
-
-		start = max(pM + 1, evenNode[d] + 1)
-		stop = newM + 1
-		if d != 0:
-			# start = min(evenNode[d] + 1, pM + 1)
-			stop = max(evenNode[d-1] + 1, start)
-
-		# the value of the parent at any depth must be greater than or equal to the value of the child at any depth
-		 	# this is why we start is set to be evenNode[d] + 1.
-			# we add in the max of that and previous width so we don't have to
-				# generate the parents of the even board that have already been generated
-		# the upper limit is different depending on whether depth is 0 or not 0.
-			# if depth is 0, the upper limit is simply the new width (+ 1 so it's inclusive)
-			# if depth is not 0, the upper limit should be the previous depth's value (+1 for inclusive)
-				# however if that is less than the value of start, we don't want to do anything at this depth
-				# so we use the max() with start. eg: "for i in range(foo, foo)" does nothing
-
-		# see if the last layer is the same as this layer
-		if layerEq[d]:
-			toAdd = set() #1 new parents to be added to the overall list later
-			for parent in lastAdded: # go through all of the parents from the previous layer(s)
-				# add new parents based off of the current parent for every possible value
-				# the new parents can be from the value of the current depth to the value of previous depth
-				for i in range(parent[d], parent[d-1] + 1):
-					p = list(parent[:])
-					p[d] = i
-
-					toAdd.add(tuple(p))
-			lastAdded.update(toAdd)
-		else:
-			# for p in lastAdded:
-				# addParent(p, parents, rBS, newRoots, prefixes, oldPrefixes, folder, MAX_ROOTS, evenNode, toPrint)
-			parents.update(lastAdded) # add the parents from last added to the list of parents
-			lastAdded = set() # reset lastAdded because the layers are different
-
-		# setting the nodes in the range of previously generated numbers as parents
-		for i in range(start, stop):
-			# casting to list from tuple so you can change the value at the current depth
-			p = list(evenNode[:]) # copy the current node
-			p[d] = i #change the value at current depth
-			lastAdded.add(tuple(p))
-		# for p in lastAdded:
-			# addParent(p, parents, rBS, newRoots, prefixes, oldPrefixes, folder, MAX_ROOTS, evenNode, toPrint)
-		parents.update(lastAdded)
-
-	return parents
-	# for prefix in parents.keys():
-	# 	try:
-	# 		dirStore(parents[prefix], folder, str(prefix))
-	# 	except Exception as e:
-	# 		print(f"error: {e}")
-	# parents.clear())
-"""
+#from sympy - thanks!
+#https://github.com/sympy/sympy/blob/master/sympy/combinatorics/partitions.py
+def getConjugate(node):
+	j = 1
+	temp_arr = list(node) + [0]
+	k = temp_arr[0]
+	b = [0]*k
+	while k > 0:
+		while k > temp_arr[j]:
+			b[k - 1] = j
+			k -= 1
+		j += 1
+	return b
 
 # pass in a path representing a node.
 # returns a list of bools with the same length
