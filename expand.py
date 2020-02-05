@@ -3,12 +3,13 @@ import os
 import sys
 from multiprocessing import Pool
 import settings
+import shutil
 # from objsize import get_deep_size
 # import psutil
 # from guppy import hpy
 
 
-
+"""
 def expandDown(m, n, dM, dN):
 	#d = depth
 	for d in range(n+1, n+dN + 1):
@@ -27,7 +28,7 @@ def expandDown(m, n, dM, dN):
 		settings.currOldRootsDir = settings.DATA_FOLDER / "oldRoots"
 
 		expandMain(d, m, dM, False)
-
+"""
 
 def expandSide (m, n, dM, dN):
 	# print("\nExpanding Side")
@@ -89,6 +90,7 @@ def expandSideLayer(depth, m, dM, newEvens = set()):
 
 	# print(f"evens: {evens}")
 	settings.staticPrefixes = settings.prefixes.copy()
+	util.emptyDir(settings.PARENTS_FOLDER)
 	util.genParentsFromExistingEvens(evens, depth, m, dM)
 
 	expandMain(depth, m, dM, True, evens, newEvens)
@@ -216,7 +218,14 @@ def expandMain(depth, m, dM, isSide, evens = set(), newEvens = set()):
 		# 	except Exception as e:
 		# 		# print(f"error: {e}")
 		# 		pass
-
+		try:
+			shutil.rmtree(settings.PARENTS_FOLDER / str(f))
+		except:
+			pass
+		try:
+			os.unlink(settings.PARENTS_FOLDER / f"{f}.dat")
+		except:
+			pass
 
 	for p in settings.prefixes:
 		util.combineDir(settings.currRootsDir, str(p), True)

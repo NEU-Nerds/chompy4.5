@@ -30,9 +30,9 @@ def main():
 		#expand sideways by dM
 		expand.expandSide(m, n, dM, dN)
 		sideTime = time.time()
-		print(f"Side time: {sideTime - sT}s")
+		# print(f"Side time: {sideTime - sT}s")
 		util.emptyDir(settings.DATA_FOLDER / "parents")
-		util.emptyDir(settings.DATA_FOLDER / "oldRoots")
+		# util.emptyDir(settings.DATA_FOLDER / "oldRoots")
 
 		#expand down by dN
 		# expand.expandDown(m, n, dM, dN)

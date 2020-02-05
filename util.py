@@ -250,6 +250,7 @@ def combineDir(folder, name, combine=False):
 			except:
 				pass
 		shutil.rmtree(folder / name)
+		# emptyDir(folder / name)
 		store(all, folder / (name + ".dat"))
 	except:
 		# print(f"failed {folder} / {name}")
