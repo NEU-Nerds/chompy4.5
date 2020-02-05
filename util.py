@@ -185,7 +185,7 @@ def getConjugate(node):
 			b[k - 1] = j
 			k -= 1
 		j += 1
-	return b
+	return tuple(b)
 
 # pass in a path representing a node.
 # returns a list of bools with the same length

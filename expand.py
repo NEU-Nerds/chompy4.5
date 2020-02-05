@@ -43,11 +43,17 @@ def expandSide (m, n, dM, dN):
 		settings.prefixes.add((x,))
 
 	util.store(settings.prefixes, settings.DATA_FOLDER / "prefixes.dat")
-
+	newEvens = set()
 	for d in range(2, n + dN):
-		expandSideLayer(d, m, dM)
+		expandSideLayer(d, m, dM, newEvens)
 
+	nextEvens = set()
+	for e in newEvens:
+		nextEvens.add(util.getConjugate(e))
+	util.store(nextEvens, settings.DATA_FOLDER / f"evens/evens{n+dN}.dat")
+	expandSideLayer(n+dN, m, dM)
 	#take resulting side roots and add them to main roots
+	"""
 	files = os.listdir(settings.DATA_FOLDER / "sideRoots")
 	for f in files:
 		try:
@@ -60,9 +66,10 @@ def expandSide (m, n, dM, dN):
 		except OSError:
 
 			os.rename(settings.DATA_FOLDER / f"sideRoots/{f}" , settings.DATA_FOLDER / f"roots/{f}")
+	"""
 	# print("finished expandSide")
 
-def expandSideLayer(depth, m, dM):
+def expandSideLayer(depth, m, dM, newEvens = set()):
 	# print("ExpandingSideLayer d = " +str(depth))
 
 	#clean out unneaded data
@@ -79,23 +86,23 @@ def expandSideLayer(depth, m, dM):
 	evens = util.load(settings.DATA_FOLDER / f"evens/evens{depth}.dat")
 
 
+
 	# print(f"evens: {evens}")
 	settings.staticPrefixes = settings.prefixes.copy()
 	util.genParentsFromExistingEvens(evens, depth, m, dM)
 
-	expandMain(depth, m, dM, True, evens)
+	expandMain(depth, m, dM, True, evens, newEvens)
 	#Yes the code below is nearly the same from expand down except the file paths
 	#I'll turn it into a function later - Ty. Well we'll see if I do
 
 
 
-def expandMain(depth, m, dM, isSide, evens = set()):
+def expandMain(depth, m, dM, isSide, evens = set(), newEvens = set()):
 	# print("expanding main")
 
 
 	#static
 	settings.staticPrefixes = settings.prefixes.copy()
-
 	ps = list(settings.staticPrefixes)
 	ps.sort()
 	for f in ps:
@@ -173,6 +180,7 @@ def expandMain(depth, m, dM, isSide, evens = set()):
 				# print("starting")
 				node = tuple(list(root) + [sigma - sum(root)] )
 				evens.add(node)
+				newEvens.add(node)
 				# print(f"node: {node}")
 
 				#get the parents of node

@@ -35,8 +35,8 @@ def main():
 		util.emptyDir(settings.DATA_FOLDER / "oldRoots")
 
 		#expand down by dN
-		expand.expandDown(m, n, dM, dN)
-		print(f"Down time: {time.time() - sideTime}s")
+		# expand.expandDown(m, n, dM, dN)
+		# print(f"Down time: {time.time() - sideTime}s")
 
 		endT = time.time()
 

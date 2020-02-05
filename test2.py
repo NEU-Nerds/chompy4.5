@@ -8,4 +8,4 @@ n = 10**4
 for i in range(n):
 	getConjugate(b1)
 print(f"Avergage time: {(time.time()-t1)/n}")
-# print(f"conjugate of {b1} = {getConjugate(b1)}")
+# print(f"conjugate of {b1} = {getConjugate(b1)2}")
