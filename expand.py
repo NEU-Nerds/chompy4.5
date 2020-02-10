@@ -9,27 +9,6 @@ import shutil
 # from guppy import hpy
 
 
-"""
-def expandDown(m, n, dM, dN):
-	#d = depth
-	for d in range(n+1, n+dN + 1):
-		# print(f"\nExpandingDown d = {d}")
-
-		#clean out unneaded data
-		util.emptyDir(settings.DATA_FOLDER / "parents")
-		util.emptyDir(settings.DATA_FOLDER / "oldRoots")
-
-		#the good old switheroo (changes roots dir to oldRoots dir)
-		os.rename(settings.DATA_FOLDER / "oldRoots", settings.DATA_FOLDER / "rootsTEMP")
-		os.rename(settings.DATA_FOLDER / "roots", settings.DATA_FOLDER / "oldRoots")
-		os.rename(settings.DATA_FOLDER / "rootsTEMP", settings.DATA_FOLDER / "roots")
-
-		settings.currRootsDir = settings.DATA_FOLDER / "roots"
-		settings.currOldRootsDir = settings.DATA_FOLDER / "oldRoots"
-
-		expandMain(d, m, dM, False)
-"""
-
 def expandSide (m, n, dM, dN):
 	# print("\nExpanding Side")
 	#?
@@ -48,26 +27,18 @@ def expandSide (m, n, dM, dN):
 	for d in range(2, n + dN):
 		expandSideLayer(d, m, dM, newEvens)
 
+	#get Conjugates of side evens for down evens
 	nextEvens = set()
 	for e in newEvens:
 		nextEvens.add(util.getConjugate(e))
+
+	#Add the Square even manually
+	cornerEven = tuple([m+dM] + [1]* (n+dN-1))
+	nextEvens.add(cornerEven)
+
+	#store new evens
 	util.store(nextEvens, settings.DATA_FOLDER / f"evens/evens{n+dN}.dat")
-	expandSideLayer(n+dN, m, dM)
-	#take resulting side roots and add them to main roots
-	"""
-	files = os.listdir(settings.DATA_FOLDER / "sideRoots")
-	for f in files:
-		try:
-			oldRoots = util.load(settings.DATA_FOLDER / f"roots/{f}")
-			newRoots = util.load(settings.DATA_FOLDER / f"sideRoots/{f}")
-			oldRoots.update(newRoots)
-			combRoots = oldRoots
 
-			util.store(combRoots, settings.DATA_FOLDER / f"roots/{f}")
-		except OSError:
-
-			os.rename(settings.DATA_FOLDER / f"sideRoots/{f}" , settings.DATA_FOLDER / f"roots/{f}")
-	"""
 	# print("finished expandSide")
 
 def expandSideLayer(depth, m, dM, newEvens = set()):
@@ -160,11 +131,6 @@ def expandMain(depth, m, dM, isSide, evens = set(), newEvens = set()):
 			pass
 			# print(f"error: {e}")
 
-		# keys = rootsBySigma.keys()
-		#
-		# #get min and max sigma
-		# minSigma = min(keys)
-		# maxSigma = max(keys)
 
 		#go through each sigma starting from smallest
 		for sigma in range(min(rootsBySigma.keys()), max(rootsBySigma.keys()) + 1):
@@ -172,9 +138,6 @@ def expandMain(depth, m, dM, isSide, evens = set(), newEvens = set()):
 			# print(f"sigma: {sigma}")
 			if sigma not in rootsBySigma.keys():
 				continue
-			# print(f"Sigma: {sigma}")
-			# newParents = {}
-			# allParents = set()
 
 			#each node here will be even
 			for root in rootsBySigma[sigma]:
@@ -197,11 +160,7 @@ def expandMain(depth, m, dM, isSide, evens = set(), newEvens = set()):
 				# 	parentD = m+dM-node[-1]
 				# print(f"pre parents {rootsBySigma}")
 				util.getParents(start, delta, node, workingParents, rootsBySigma, newRoots)
-				# util.getParents(parentS, m+dM, node, workingParents, rootsBySigma, newRoots)
-				# print(f"post Parents {rootsBySigma}")
-			# if newRoots != {}:
-			# 	print(f"newRoots: {newRoots}")
-			# print("past roots")
+
 			for p in newRoots.keys():
 				util.dirStore(newRoots[p], settings.currRootsDir, str(p))
 
@@ -212,12 +171,7 @@ def expandMain(depth, m, dM, isSide, evens = set(), newEvens = set()):
 		del rootsBySigma
 		# print(f"workingParents: {workingParents}")
 		util.storeParents(workingParents)
-		# for pfix in workingParents.keys():
-		# 	try:
-		# 		util.dirStore(workingParents[pfix], settings.PARENTS_FOLDER, str(pfix))
-		# 	except Exception as e:
-		# 		# print(f"error: {e}")
-		# 		pass
+
 		try:
 			shutil.rmtree(settings.PARENTS_FOLDER / str(f))
 		except:

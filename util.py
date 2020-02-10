@@ -124,11 +124,10 @@ def addParent(p, parents, rBS, newRoots):
 # pass in previous width, change in width, and the node
 def getP(p, pM, dM):
 	lE= layerEquivalence(p)
-	# print(f"lE: {lE}")
 	if p[0] > pM:
 		yield from recP(list(p)[:], lE, True, 1)
+
 	for x in range(max(p[0],pM+1), pM+dM+1):
-		# print(f"x: {x}")
 		wP = list(p)[:]
 		wP[0] = x
 		if x != p[0]:
@@ -138,32 +137,23 @@ def getP(p, pM, dM):
 
 
 def recP(wP, lE, untouched, i):
-	# untouched = copy(untouched)
 	wP = wP[:]
-	# print(f"RecP call with: {wP}, {lE}, {untouched}, {i}")
 	if i >= len(wP):
-		# print("HELLO")
 		return
 
-
-	# if i < len(wP)-1 or not untouched:
 	yield from recP(wP, lE, untouched, i+1)
 
-	# for i in range(startI, len(wP)):
-		# yield from recP(wP, i+1)
 	if untouched:
 		untouched = False
 		for x in range(wP[i]+1, wP[i-1]+1):
 			wP[i] = x
-			# print(f"yielding {wP}")
 			yield tuple(wP)
 			yield from recP(wP, lE, untouched, i+1)
+
 	elif lE[i]:
-		# print("HI")
 		untouched = False
 		for x in range(wP[i]+1, wP[i-1]+1):
 			wP[i] = x
-			# print(f"yielding {wP}")
 			yield tuple(wP)
 			yield from recP(wP, lE, untouched, i+1)
 
@@ -186,6 +176,22 @@ def getConjugate(node):
 			k -= 1
 		j += 1
 	return tuple(b)
+
+def getChildren(node):
+	node = list(node)
+	for i in range(len(node)):
+		if i != 0:
+			yield tuple(node[:i])
+		for j in range(1, node[i]):
+			# if i == 0 and j == 0:
+			# 	continue
+			#"biting" at i,j
+			ret = node[:]
+			nI = i
+			while nI < len(node) and node[nI] > j:
+				ret[nI] = j
+				nI += 1
+			yield tuple(ret)
 
 # pass in a path representing a node.
 # returns a list of bools with the same length
