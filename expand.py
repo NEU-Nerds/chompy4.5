@@ -169,6 +169,7 @@ def expandMain(depth, m, dM, isSide, evens = set()):
 
 			#each node here will be even
 			for root in rootsBySigma[sigma]:
+				settings.rootCount += 1
 				#create the node, add it to evens
 				# print("starting")
 				node = tuple(list(root) + [sigma - sum(root)] )

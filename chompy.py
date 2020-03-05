@@ -8,6 +8,7 @@ import sys
 import settings
 
 # from objsize import get_deep_size
+numData = [(0,0),(1,1)]
 
 def main():
 	#previous mxn completed
@@ -26,7 +27,7 @@ def main():
 		print(f"\nExpanding from {m}X{n} to {m+dM}X{n+dN}")
 
 		sT = time.time()
-
+		settings.rootCount = 0
 		#expand sideways by dM
 		expand.expandSide(m, n, dM, dN)
 		sideTime = time.time()
@@ -53,6 +54,12 @@ def main():
 		print(f"{m}X{n} total evens: {len(allEvens)}\t in {str(endT-sT)}s")
 		if settings.printEvens:
 			print(str(m)+"X"+str(n)+" evens: " + str(allEvens))
+		print(f"newPrunedNodes: {settings.rootCount}")
+		# numNewPruned.append(settings.rootCount)
+		settings.totalRootCount += settings.rootCount
+		# numTotalPruned.append(settings.totalRootCount)
+		numData.append((settings.rootCount, settings.totalRootCount))
+		print(f"totalPrunedNodes: {settings.totalRootCount}")
 		# print(f"size of all evens: {sys.getsizeof(allEvens)}")
 		# print(f"Deep allEvens objSize: {get_deep_size(allEvens)}")
 		# print()
@@ -63,6 +70,12 @@ def main():
 
 	print(f"\n\nTotal run time for {startM}X{startN} to {m}X{n}: {time.time() - firstST}s ")
 
+	out = ""
+	for x in range(1,len(numData)):
+	    out += f"{x}, {numData[x][0]}, {numData[x][1]}\n"
+
+	with open(f"./prunedTo_{m}X{n}.csv", 'w') as f:
+	    f.write(out)
 	# print(f"\nTotal count: {settings.totalCount}\tRedundantCount: {settings.redCount}\tratio: {settings.redCount/settings.totalCount}")
 #seed the 1x1 board
 def seed():

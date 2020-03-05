@@ -34,6 +34,10 @@ doSeed = None
 redCount = None
 totalCount = None
 
+
+rootCount = None
+totalRootCount = None
+
 def init():
     global THIS_FOLDER
     global THIS_FOLDER
@@ -54,24 +58,31 @@ def init():
     global redCount
     global totalCount
 
+    global rootCount
+    global totalRootCount
+
+
     redCount = 0
     totalCount = 0
 
     currParentsNum = 0
+
+    rootCount = 0
+    totalRootCount = 0
 
     THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
     #THIS_FOLDER = "D:/Mass Storage/Math/chompy"
     # THIS_FOLDER = "/Users/tymarking/Documents/chomp/chompy4"
     # print(THIS_FOLDER)
     THIS_FOLDER = Path(THIS_FOLDER)
-    DATA_FOLDER = Path(THIS_FOLDER, "./data/epoc3/")
+    DATA_FOLDER = Path(THIS_FOLDER, "./data/epoc5/")
     EVENS_FOLDER = Path(DATA_FOLDER, "./evens/")
     ROOTS_FOLDER = Path(DATA_FOLDER, "./rootBatches/")
     PARENTS_FOLDER = Path(DATA_FOLDER, "./parents/")
     ROOTS_BY_SIGMA_FOLDER = Path(DATA_FOLDER, "./rootsBySigma/")
 
-    MAX_M = 14
-    MAX_N = 14
+    MAX_M = 10
+    MAX_N = 10
 
     doSeed = True
 

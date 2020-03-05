@@ -68,6 +68,8 @@ def splitPrefix(prefix, s):
 
 
 def addToSet(node, s, root=False):
+	if root:
+		settings.rootCount += 1
 	p = getPrefix(node, root)
 
 	if p in s.keys():
